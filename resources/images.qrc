@@ -1,0 +1,24 @@
+<RCC>
+    <qresource prefix="/">
+        <file>images/add.png</file>
+        <file>images/cleanport.png</file>
+        <file>images/clearbytes.png</file>
+        <file>images/edit-clear.png</file>
+        <file>images/exit.png</file>
+        <file>images/loadfile.png</file>
+        <file>images/open.png</file>
+        <file>images/save.png</file>
+        <file>images/send.png</file>
+        <file>images/stop.png</file>
+        <file>images/write2file.png</file>
+        <file>images/header.bmp</file>
+        <file>images/lcd.bmp</file>
+        <file>images/logo.png</file>
+        <file>images/pause.png</file>
+        <file>images/time.png</file>
+        <file>images/wincom.ICO</file>
+        <file>images/logo-toggle.svg</file>
+        <file>images/find.png</file>
+        <file>images/message.png</file>
+    </qresource>
+</RCC>
