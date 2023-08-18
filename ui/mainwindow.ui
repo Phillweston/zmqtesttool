@@ -11,122 +11,441 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>ZMQ Test Tool</string>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <layout class="QVBoxLayout" name="verticalLayout">
+   <layout class="QVBoxLayout" name="verticalLayout_3">
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout">
       <item>
-       <layout class="QFormLayout" name="formLayout">
-        <item row="0" column="0">
-         <widget class="QLabel" name="label">
+       <layout class="QHBoxLayout" name="horizontalLayout_4">
+        <item>
+         <widget class="QLabel" name="labelHost">
           <property name="text">
            <string>Host:</string>
           </property>
          </widget>
         </item>
-        <item row="0" column="1">
+        <item>
          <widget class="QLineEdit" name="lineEditHost">
           <property name="text">
-           <string/>
+           <string>127.0.0.1</string>
+          </property>
+          <property name="placeholderText">
+           <string>Input Host IP Address Here</string>
           </property>
          </widget>
         </item>
-        <item row="2" column="0">
-         <widget class="QLabel" name="label_2">
+        <item>
+         <widget class="QLabel" name="labelSubscribePort">
           <property name="text">
-           <string>Port:</string>
+           <string>Subscribe Port:</string>
           </property>
          </widget>
         </item>
-        <item row="2" column="1">
-         <widget class="QSpinBox" name="spinBoxPort">
+        <item>
+         <widget class="QSpinBox" name="spinBoxPortSubscribe">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
           <property name="maximum">
-           <number>99999</number>
+           <number>65535</number>
           </property>
           <property name="value">
-           <number>1883</number>
+           <number>9446</number>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="labelPublishPort">
+          <property name="text">
+           <string>Publish Port:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QSpinBox" name="spinBoxPortPublish">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="maximum">
+           <number>65535</number>
+          </property>
+          <property name="value">
+           <number>9445</number>
           </property>
          </widget>
         </item>
        </layout>
       </item>
       <item>
-       <widget class="QPushButton" name="buttonConnect">
+       <widget class="QPushButton" name="buttonDefault">
         <property name="text">
-         <string>Connect</string>
+         <string>Default</string>
         </property>
         <property name="icon">
          <iconset resource="../resources/images.qrc">
-          <normaloff>:/images/send.png</normaloff>:/images/send.png</iconset>
+          <normaloff>:/images/clearbytes.png</normaloff>:/images/clearbytes.png</iconset>
         </property>
        </widget>
       </item>
      </layout>
     </item>
     <item>
-     <layout class="QGridLayout" name="gridLayout">
-      <item row="1" column="1">
-       <widget class="QLineEdit" name="lineEditMessage">
-        <property name="text">
-         <string>This is a test message</string>
+     <layout class="QHBoxLayout" name="horizontalLayout_9">
+      <item>
+       <widget class="QGroupBox" name="groupBox_2">
+        <property name="styleSheet">
+         <string notr="true">QGroupBox {
+    background-color: qlineargradient(
+        x1: 0, y1: 0,
+        x2: 0, y2: 1,
+        stop: 0 #E0E0E0,
+        stop: 1 #FFFFFF
+    );
+
+    border: 2px solid gray;
+    border-radius: 5px;
+    margin-top: 5ex;
+}
+
+QGroupBox::title {
+    subcontrol-origin: margin;
+    padding: 5px 0px;
+}</string>
         </property>
+        <property name="title">
+         <string>Publish Window:</string>
+        </property>
+        <layout class="QVBoxLayout" name="verticalLayout">
+         <item>
+          <widget class="QLabel" name="label_6">
+           <property name="text">
+            <string>Publish Message Display:</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QTextEdit" name="textViewPublish">
+           <property name="placeholderText">
+            <string>Messages will shown here once the publish is triggered</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_6">
+           <item>
+            <widget class="QLabel" name="labelPublishTopic">
+             <property name="text">
+              <string>Publish Topic:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="lineEditPublishTopic">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+             <property name="placeholderText">
+              <string>Input Publish Topic Here</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_12">
+           <item>
+            <widget class="QLabel" name="labelPublishMessage">
+             <property name="text">
+              <string>Publish Message:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="lineEditPublishMessage">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+             <property name="placeholderText">
+              <string>Input Publish Message Here</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_7">
+           <item>
+            <widget class="QWidget" name="widget" native="true">
+             <layout class="QHBoxLayout" name="horizontalLayout_10">
+              <item>
+               <widget class="QCheckBox" name="checkBoxLoop">
+                <property name="text">
+                 <string>Loop Publish</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="labelPublishFrequency">
+             <property name="text">
+              <string>Publish Frequency:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QSpinBox" name="spinBoxFrequency">
+             <property name="maximum">
+              <number>200</number>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="labelMaxPublishTime">
+             <property name="text">
+              <string>Max Publish Time:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QSpinBox" name="spinBoxMaxPublishTime">
+             <property name="minimum">
+              <number>1</number>
+             </property>
+             <property name="maximum">
+              <number>65535</number>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="buttonPublishClearAll">
+             <property name="text">
+              <string>Clear All</string>
+             </property>
+             <property name="icon">
+              <iconset resource="../resources/images.qrc">
+               <normaloff>:/images/edit-clear.png</normaloff>:/images/edit-clear.png</iconset>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="buttonPublishStop">
+             <property name="text">
+              <string>Stop Publish</string>
+             </property>
+             <property name="icon">
+              <iconset resource="../resources/images.qrc">
+               <normaloff>:/images/stop.png</normaloff>:/images/stop.png</iconset>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="buttonPublishStart">
+             <property name="text">
+              <string>Start Publish</string>
+             </property>
+             <property name="icon">
+              <iconset resource="../resources/images.qrc">
+               <normaloff>:/images/open.png</normaloff>:/images/open.png</iconset>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+        </layout>
        </widget>
       </item>
-      <item row="1" column="0">
-       <widget class="QLabel" name="label_4">
-        <property name="text">
-         <string>Message:</string>
+      <item>
+       <widget class="QGroupBox" name="groupBox_3">
+        <property name="styleSheet">
+         <string notr="true">QGroupBox {
+    background-color: qlineargradient(
+        x1: 0, y1: 0,
+        x2: 0, y2: 1,
+        stop: 0 #E0E0E0,
+        stop: 1 #FFFFFF
+    );
+
+    border: 2px solid gray;
+    border-radius: 5px;
+    margin-top: 5ex;
+}
+
+QGroupBox::title {
+    subcontrol-origin: margin;
+    padding: 5px 0px;
+}</string>
         </property>
-       </widget>
-      </item>
-      <item row="0" column="2">
-       <widget class="QPushButton" name="buttonSubscribe">
-        <property name="text">
-         <string>Subscribe</string>
+        <property name="title">
+         <string>Subscribe Window:</string>
         </property>
-        <property name="icon">
-         <iconset resource="../resources/images.qrc">
-          <normaloff>:/images/loadfile.png</normaloff>:/images/loadfile.png</iconset>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="2">
-       <widget class="QPushButton" name="buttonPublish">
-        <property name="text">
-         <string>Publish</string>
-        </property>
-        <property name="icon">
-         <iconset resource="../resources/images.qrc">
-          <normaloff>:/images/write2file.png</normaloff>:/images/write2file.png</iconset>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="1">
-       <widget class="QLineEdit" name="lineEditTopic">
-        <property name="text">
-         <string>qtmqtt/topic1</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="0">
-       <widget class="QLabel" name="label_3">
-        <property name="text">
-         <string>Topic:</string>
-        </property>
+        <layout class="QVBoxLayout" name="verticalLayout_2">
+         <item>
+          <widget class="QLabel" name="label_7">
+           <property name="text">
+            <string>Subscribe Message Display:</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QTextEdit" name="textViewSubscribe">
+           <property name="placeholderText">
+            <string>Subscribe messages will shown here once received available messages</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_5">
+           <item>
+            <widget class="QLabel" name="labelSubscribeTopic">
+             <property name="text">
+              <string>Subscribe Topic:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="lineEditSubscribeTopic">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+             <property name="placeholderText">
+              <string>Input Subscribe Topic Here</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_8">
+           <item>
+            <widget class="QWidget" name="widget_2" native="true">
+             <layout class="QHBoxLayout" name="horizontalLayout_11">
+              <item>
+               <widget class="QLabel" name="labelDisplaySubscribe">
+                <property name="text">
+                 <string>Display:</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QRadioButton" name="decSubscribe">
+                <property name="text">
+                 <string>Decimal</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QRadioButton" name="hexSubscribe">
+                <property name="text">
+                 <string>Hexadecimal</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="labelMaxSubscribeTime">
+             <property name="text">
+              <string>Max Subscribe Time:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QSpinBox" name="spinBoxMaxSubscribeTime">
+             <property name="minimum">
+              <number>1</number>
+             </property>
+             <property name="maximum">
+              <number>65535</number>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="buttonSubscribeClearAll">
+             <property name="text">
+              <string>Clear All</string>
+             </property>
+             <property name="icon">
+              <iconset resource="../resources/images.qrc">
+               <normaloff>:/images/edit-clear.png</normaloff>:/images/edit-clear.png</iconset>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="buttonSubscribeStop">
+             <property name="text">
+              <string>Stop Subscribe</string>
+             </property>
+             <property name="icon">
+              <iconset resource="../resources/images.qrc">
+               <normaloff>:/images/stop.png</normaloff>:/images/stop.png</iconset>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="buttonSubscribeStart">
+             <property name="text">
+              <string>Start Subscribe</string>
+             </property>
+             <property name="icon">
+              <iconset resource="../resources/images.qrc">
+               <normaloff>:/images/open.png</normaloff>:/images/open.png</iconset>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+        </layout>
        </widget>
       </item>
      </layout>
     </item>
     <item>
      <widget class="QGroupBox" name="groupBox">
+      <property name="maximumSize">
+       <size>
+        <width>16777215</width>
+        <height>200</height>
+       </size>
+      </property>
       <property name="title">
        <string>Log Messages</string>
       </property>
       <layout class="QHBoxLayout" name="horizontalLayout_2">
        <item>
-        <widget class="QPlainTextEdit" name="editLog"/>
+        <widget class="QTextEdit" name="logMessage">
+         <property name="placeholderText">
+          <string>Log message will shown here</string>
+         </property>
+        </widget>
        </item>
       </layout>
      </widget>
@@ -135,6 +454,45 @@
      <layout class="QHBoxLayout" name="horizontalLayout_3">
       <item>
        <spacer name="horizontalSpacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <widget class="QLabel" name="iconLable">
+        <property name="maximumSize">
+         <size>
+          <width>130</width>
+          <height>40</height>
+         </size>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+        <property name="pixmap">
+         <pixmap resource="../resources/images.qrc">:/images/logo-toggle.svg</pixmap>
+        </property>
+        <property name="scaledContents">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="jouav">
+        <property name="text">
+         <string>www.jouav.com</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer_2">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
         </property>
@@ -180,7 +538,7 @@
     <property name="title">
      <string>About</string>
     </property>
-    <addaction name="actionAbout_ZMQ_Test_Tool"/>
+    <addaction name="actionAbout"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuAbout"/>
@@ -203,7 +561,7 @@
     <string>Quit</string>
    </property>
   </action>
-  <action name="actionAbout_ZMQ_Test_Tool">
+  <action name="actionAbout">
    <property name="icon">
     <iconset resource="../resources/images.qrc">
      <normaloff>:/images/message.png</normaloff>:/images/message.png</iconset>

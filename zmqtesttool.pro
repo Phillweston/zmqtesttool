@@ -1,8 +1,8 @@
-QT       += core gui network
+QT       += core gui testlib
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-TARGET = simplemqttclient
+TARGET = zmqtesttool
 TEMPLATE = app
 
 # The following define makes your compiler emit warnings if you use
@@ -20,39 +20,59 @@ SOURCES += src/main.cpp\
         src/aboutdialog.cpp \
         src/mainwindow.cpp
 
-HEADERS  += mainwindow.h \
+HEADERS  += include/mainwindow.h \
     include/aboutdialog.h \
-    include/mainwindow.h
+    include/Publisher.hpp \
+    include/SampleBase.hpp \
+    include/Subscriber.hpp \
+    include/aboutdialog.h \
+    include/cppzmq/zmq.h \
+    include/cppzmq/zmq.hpp \
+    include/mainwindow.h \
+    include/nzmqt/global.hpp \
+    include/nzmqt/impl.hpp \
+    include/nzmqt/nzmqt.hpp
 
 FORMS    += ui/aboutdialog.ui \
     ui/mainwindow.ui
 
-
-target.path = $$[QT_INSTALL_EXAMPLES]/mqtt/simpleclient
-INSTALLS += target
+INCLUDEPATH += include
 
 RESOURCES += \
     resources/images.qrc
 
-DISTFILES += \
-    resources/images/add.png \
-    resources/images/cleanport.png \
-    resources/images/clearbytes.png \
-    resources/images/edit-clear.png \
-    resources/images/exit.png \
-    resources/images/find.png \
-    resources/images/header.bmp \
-    resources/images/lcd.bmp \
-    resources/images/loadfile.png \
-    resources/images/logo-toggle.svg \
-    resources/images/logo.png \
-    resources/images/mesage.png \
-    resources/images/open.png \
-    resources/images/pause.png \
-    resources/images/save.png \
-    resources/images/send.png \
-    resources/images/stop.png \
-    resources/images/time.png \
-    resources/images/wincom.ICO \
-    resources/images/write2file.png \
-    resources/myico.rc
+RC_FILE += resources/myico.rc
+
+win32 {
+    LIBS += -L$$PWD/lib -llibzmq
+
+    SOURCE_DIR = $$PWD
+
+    CONFIG(release, debug|release): {
+        DESTDIR += release
+        LIBS += -L$$SOURCE_DIR/lib -lQt5Gui
+        LIBS += -L$$SOURCE_DIR/lib -lQt5Widgets
+
+        # Specify additional dependencies that should be built before the target is built, but after all other dependencies.
+        POST_TARGETDEPS += $$SOURCE_DIR/bin/libzmq-v142-mt-4_3_5.dll
+        POST_TARGETDEPS += $$SOURCE_DIR/bin/Qt5Gui.dll
+        POST_TARGETDEPS += $$SOURCE_DIR/bin/Qt5Widgets.dll
+
+        QMAKE_POST_LINK += $$QMAKE_COPY $$quote($$SOURCE_DIR/bin/libzmq-v142-mt-4_3_5.dll) $$quote($$DESTDIR) $$escape_expand(\\n\\t)
+        QMAKE_POST_LINK += $$QMAKE_COPY $$quote($$SOURCE_DIR/bin/Qt5Gui.dll) $$quote($$DESTDIR) $$escape_expand(\\n\\t)
+        QMAKE_POST_LINK += $$QMAKE_COPY $$quote($$SOURCE_DIR/bin/Qt5Widgets.dll) $$quote($$DESTDIR) $$escape_expand(\\n\\t)
+    } else {
+        DESTDIR += debug
+        LIBS += -L$$SOURCE_DIR/lib -lQt5Guid
+        LIBS += -L$$SOURCE_DIR/lib -lQt5Widgetsd
+
+        # Specify additional dependencies that should be built before the target is built, but after all other dependencies.
+        POST_TARGETDEPS += $$SOURCE_DIR/bin/libzmq-v142-mt-4_3_5.dll
+        POST_TARGETDEPS += $$SOURCE_DIR/bin/Qt5Guid.dll
+        POST_TARGETDEPS += $$SOURCE_DIR/bin/Qt5Widgetsd.dll
+
+        QMAKE_POST_LINK += $$QMAKE_COPY $$quote($$SOURCE_DIR/bin/libzmq-v142-mt-4_3_5.dll) $$quote($$DESTDIR) $$escape_expand(\\n\\t)
+        QMAKE_POST_LINK += $$QMAKE_COPY $$quote($$SOURCE_DIR/bin/Qt5Guid.dll) $$quote($$DESTDIR) $$escape_expand(\\n\\t)
+        QMAKE_POST_LINK += $$QMAKE_COPY $$quote($$SOURCE_DIR/bin/Qt5Widgetsd.dll) $$quote($$DESTDIR) $$escape_expand(\\n\\t)
+    }
+}

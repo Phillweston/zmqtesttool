@@ -20,5 +20,6 @@
         <file>images/logo-toggle.svg</file>
         <file>images/find.png</file>
         <file>images/message.png</file>
+        <file>images/icon.ico</file>
     </qresource>
 </RCC>

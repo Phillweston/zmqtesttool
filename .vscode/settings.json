@@ -2,5 +2,23 @@
     "cSpell.words": [
         "jouav",
         "lvruitao"
-    ]
+    ],
+    "files.associations": {
+        "*.m": "matlab",
+        "xiosbase": "cpp",
+        "chrono": "cpp",
+        "optional": "cpp",
+        "system_error": "cpp",
+        "atomic": "cpp",
+        "forward_list": "cpp",
+        "ios": "cpp",
+        "list": "cpp",
+        "vector": "cpp",
+        "xhash": "cpp",
+        "xstring": "cpp",
+        "format": "cpp",
+        "exception": "cpp",
+        "functional": "cpp",
+        "memory": "cpp"
+    }
 }

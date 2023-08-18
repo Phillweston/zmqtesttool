@@ -1,0 +1,195 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Form Files">
+      <UniqueIdentifier>{99349809-55BA-4b9d-BF79-8FDBB0286EB3}</UniqueIdentifier>
+      <Extensions>ui</Extensions>
+      <ParseFiles>false</ParseFiles>
+    </Filter>
+    <Filter Include="Form Files">
+      <UniqueIdentifier>{99349809-55BA-4b9d-BF79-8FDBB0286EB3}</UniqueIdentifier>
+      <Extensions>ui</Extensions>
+      <ParseFiles>false</ParseFiles>
+    </Filter>
+    <Filter Include="Generated Files">
+      <UniqueIdentifier>{71ED8ED8-ACB9-4CE9-BBE1-E00B30144E11}</UniqueIdentifier>
+      <Extensions>cpp;c;cxx;moc;h;def;odl;idl;res;</Extensions>
+    </Filter>
+    <Filter Include="Generated Files">
+      <UniqueIdentifier>{71ED8ED8-ACB9-4CE9-BBE1-E00B30144E11}</UniqueIdentifier>
+      <Extensions>cpp;c;cxx;moc;h;def;odl;idl;res;</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{D9D6E242-F8AF-46E4-B9FD-80ECBC20BA3E}</UniqueIdentifier>
+      <Extensions>qrc;*</Extensions>
+      <ParseFiles>false</ParseFiles>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{D9D6E242-F8AF-46E4-B9FD-80ECBC20BA3E}</UniqueIdentifier>
+      <Extensions>qrc;*</Extensions>
+      <ParseFiles>false</ParseFiles>
+    </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\aboutdialog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mainwindow.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <QtMoc Include="include\Publisher.hpp">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="include\SampleBase.hpp">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="include\Subscriber.hpp">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="include\aboutdialog.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <ClInclude Include="include\nzmqt\global.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\nzmqt\impl.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <QtMoc Include="include\mainwindow.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="include\nzmqt\nzmqt.hpp">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <ClInclude Include="include\cppzmq\zmq.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\cppzmq\zmq.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <CustomBuild Include="debug\moc_predefs.h.cbt">
+      <Filter>Generated Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="release\moc_predefs.h.cbt">
+      <Filter>Generated Files</Filter>
+    </CustomBuild>
+    
+    
+    
+    
+  </ItemGroup>
+  <ItemGroup>
+    <QtUic Include="ui\aboutdialog.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+    <QtUic Include="ui\mainwindow.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="resources\images\add.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="resources\images\cleanport.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="resources\images\clearbytes.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="resources\images\edit-clear.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="resources\images\exit.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="resources\images\find.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="resources\images\header.bmp">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="resources\images\icon.ico">
+      <Filter>Resource Files</Filter>
+    </None>
+    <QtRcc Include="resources\images.qrc">
+      <Filter>Resource Files</Filter>
+    </QtRcc>
+    <None Include="resources\images\lcd.bmp">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="resources\images\loadfile.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="resources\images\logo-toggle.svg">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="resources\images\logo.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="resources\images\message.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="resources\images\open.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="resources\images\pause.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="resources\images\save.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="resources\images\send.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="resources\images\stop.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="resources\images\time.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="resources\images\wincom.ICO">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="resources\images\write2file.png">
+      <Filter>Resource Files</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="resources\myico.rc" />
+  </ItemGroup>
+</Project>
