@@ -61,6 +61,10 @@ And if not already done, you also need to link against 0MQ library:
 
     LIBS += -lzmq
 
+To specify the library path, we can use the following line (I assume that the `.dll` file is placed in the `lib` folder under the root path of the project):
+
+    LIBS += -L$$PWD/lib -llibzmq
+
 ***Include and Source File***
 
 If you don't like the everything is inlined as it is the case with *Include File Only* option you can use this approach. It will "move" the class method implementations to a separate ``nzmqt.cpp`` file. For this to work modify your ``.pro`` file as follows.
@@ -112,12 +116,23 @@ lvruitao
 
 ## Project Hierarchy
 
+- **main**
+  - `main.cpp` - main entrance for program
 - **mainwindow**
   - `mainwindow.cpp` - main window interface and related implementation
   - `mainwindow.h` - header file for main window
 - **aboutdialog**
   - `aboutdialog.cpp` - network about window interface and related implementation
   - `aboutdialog.h` - header file for about
+- **include**
+  - **cppzmq**
+    - `zmq_util.h` - zeromq utility header file
+    - `zmq.h` - zeromq fundamental header file for c
+    - `zmq.hpp` - zeromq header file for c++
+  - **nzmqt**
+    - `global.hpp` - global header file for NZMQT_API
+    - `impl.hpp` - implementation header file for NZMQT_API
+    - `nzmqt.hpp` - nzmqt header file
 
 ## Library Dependencies
 
@@ -127,7 +142,7 @@ lvruitao
 ## Millstones
 
 - [x] 2023.08.14: New project using Qt5.15 C++ environment, add ZeroMQ library.
-- [ ] 
+- [x] 2023.06.21: Preliminary version complete.
 
 ## License
 
