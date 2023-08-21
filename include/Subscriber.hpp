@@ -50,9 +50,9 @@ class Subscriber : public SampleBase
     typedef SampleBase super;
 
 public:
-    explicit Subscriber(ZMQContext& context, const QString& address, const QString& topic, QObject *parent = 0)
+    explicit Subscriber(ZMQContext& context, const QString& address, const QString& topic, const bool& useHex, QObject *parent = 0)
         : super(parent)
-        , address_(address), topic_(topic)
+        , address_(address), topic_(topic), useHex_(useHex)
         , socket_(0)
     {
         socket_ = context.createSocket(ZMQSocket::TYP_SUB, this);
@@ -71,18 +71,32 @@ protected:
     }
 
 protected slots:
-    void subMessageReceived(const QList<QByteArray>& message)
+    void subMessageReceived(const QList<QByteArray>& msg)
     {
+        QList<QByteArray> hexMsg;
         QString currentTime = getCurrentTime();
-        qDebug() << "Subscriber> " << message << ", Timestamp: " << currentTime;
-        emit messageReceived(currentTime, message);
+
+        if (useHex_)
+        {
+            for (const QByteArray& ba : msg)
+            {
+                hexMsg.append(ba.toHex());
+            }
+            qDebug() << "Subscriber> " << hexMsg << ", Timestamp: " << currentTime;
+            emit messageReceived(currentTime, hexMsg);
+        }
+        else
+        {
+            qDebug() << "Subscriber> " << msg << ", Timestamp: " << currentTime;
+            emit messageReceived(currentTime, msg);
+        }
     }
 
 private:
     QString address_;
     QString topic_;
     QString message_;
-
+    bool useHex_;
     ZMQSocket* socket_;
 };
 

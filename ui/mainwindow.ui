@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1024</width>
+    <width>1256</width>
     <height>768</height>
    </rect>
   </property>
@@ -28,34 +28,14 @@
         </item>
         <item>
          <widget class="QLineEdit" name="lineEditHost">
+          <property name="statusTip">
+           <string>Input Host IP Address</string>
+          </property>
           <property name="text">
            <string>127.0.0.1</string>
           </property>
           <property name="placeholderText">
            <string>Input Host IP Address Here</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLabel" name="labelSubscribePort">
-          <property name="text">
-           <string>Subscribe Port:</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QSpinBox" name="spinBoxPortSubscribe">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="maximum">
-           <number>65535</number>
-          </property>
-          <property name="value">
-           <number>9446</number>
           </property>
          </widget>
         </item>
@@ -74,11 +54,40 @@
             <verstretch>0</verstretch>
            </sizepolicy>
           </property>
+          <property name="statusTip">
+           <string>Input Publish Port</string>
+          </property>
           <property name="maximum">
            <number>65535</number>
           </property>
           <property name="value">
            <number>9445</number>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="labelSubscribePort">
+          <property name="text">
+           <string>Subscribe Port:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QSpinBox" name="spinBoxPortSubscribe">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="statusTip">
+           <string>Input Subscribe Port</string>
+          </property>
+          <property name="maximum">
+           <number>65535</number>
+          </property>
+          <property name="value">
+           <number>9446</number>
           </property>
          </widget>
         </item>
@@ -133,6 +142,9 @@ QGroupBox::title {
          </item>
          <item>
           <widget class="QTextEdit" name="textViewPublish">
+           <property name="statusTip">
+            <string>Show Publish Messages</string>
+           </property>
            <property name="placeholderText">
             <string>Messages will shown here once the publish is triggered</string>
            </property>
@@ -155,6 +167,9 @@ QGroupBox::title {
                <height>0</height>
               </size>
              </property>
+             <property name="statusTip">
+              <string>Input Publish Topic Here</string>
+             </property>
              <property name="text">
               <string/>
              </property>
@@ -163,10 +178,41 @@ QGroupBox::title {
              </property>
             </widget>
            </item>
+           <item>
+            <widget class="QLabel" name="labelPublishMessageCount">
+             <property name="text">
+              <string>Message Count:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLCDNumber" name="lcdNumberPublish"/>
+           </item>
           </layout>
          </item>
          <item>
           <layout class="QHBoxLayout" name="horizontalLayout_12">
+           <item>
+            <widget class="QLabel" name="labelDisplaySubscribe_2">
+             <property name="text">
+              <string>Publish as:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QRadioButton" name="decPublish">
+             <property name="text">
+              <string>Decimal</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QRadioButton" name="hexPublish">
+             <property name="text">
+              <string>Hexadecimal</string>
+             </property>
+            </widget>
+           </item>
            <item>
             <widget class="QLabel" name="labelPublishMessage">
              <property name="text">
@@ -181,6 +227,9 @@ QGroupBox::title {
                <width>0</width>
                <height>0</height>
               </size>
+             </property>
+             <property name="statusTip">
+              <string>Input Publish Message Here</string>
              </property>
              <property name="text">
               <string/>
@@ -240,6 +289,9 @@ QGroupBox::title {
            </item>
            <item>
             <widget class="QPushButton" name="buttonPublishClearAll">
+             <property name="statusTip">
+              <string>Clear All Information Input</string>
+             </property>
              <property name="text">
               <string>Clear All</string>
              </property>
@@ -251,6 +303,9 @@ QGroupBox::title {
            </item>
            <item>
             <widget class="QPushButton" name="buttonPublishStop">
+             <property name="statusTip">
+              <string>Stop Publishing Message</string>
+             </property>
              <property name="text">
               <string>Stop Publish</string>
              </property>
@@ -262,6 +317,9 @@ QGroupBox::title {
            </item>
            <item>
             <widget class="QPushButton" name="buttonPublishStart">
+             <property name="statusTip">
+              <string>Start Publishing Message</string>
+             </property>
              <property name="text">
               <string>Start Publish</string>
              </property>
@@ -310,6 +368,9 @@ QGroupBox::title {
          </item>
          <item>
           <widget class="QTextEdit" name="textViewSubscribe">
+           <property name="statusTip">
+            <string>Show Subscribe Messages</string>
+           </property>
            <property name="placeholderText">
             <string>Subscribe messages will shown here once received available messages</string>
            </property>
@@ -332,6 +393,9 @@ QGroupBox::title {
                <height>0</height>
               </size>
              </property>
+             <property name="statusTip">
+              <string>Input Subscribe Topic Here</string>
+             </property>
              <property name="text">
               <string/>
              </property>
@@ -339,6 +403,16 @@ QGroupBox::title {
               <string>Input Subscribe Topic Here</string>
              </property>
             </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="labelSubscribeMessageCount">
+             <property name="text">
+              <string>Message Count:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLCDNumber" name="lcdNumberSubscribe"/>
            </item>
           </layout>
          </item>
@@ -350,7 +424,7 @@ QGroupBox::title {
               <item>
                <widget class="QLabel" name="labelDisplaySubscribe">
                 <property name="text">
-                 <string>Display:</string>
+                 <string>Display as:</string>
                 </property>
                </widget>
               </item>
@@ -390,6 +464,9 @@ QGroupBox::title {
            </item>
            <item>
             <widget class="QPushButton" name="buttonSubscribeClearAll">
+             <property name="statusTip">
+              <string>Clear All Information Input</string>
+             </property>
              <property name="text">
               <string>Clear All</string>
              </property>
@@ -401,6 +478,9 @@ QGroupBox::title {
            </item>
            <item>
             <widget class="QPushButton" name="buttonSubscribeStop">
+             <property name="statusTip">
+              <string>Stop Subscribing Message</string>
+             </property>
              <property name="text">
               <string>Stop Subscribe</string>
              </property>
@@ -412,6 +492,9 @@ QGroupBox::title {
            </item>
            <item>
             <widget class="QPushButton" name="buttonSubscribeStart">
+             <property name="statusTip">
+              <string>Start Subscribing Message</string>
+             </property>
              <property name="text">
               <string>Start Subscribe</string>
              </property>
@@ -442,6 +525,9 @@ QGroupBox::title {
       <layout class="QHBoxLayout" name="horizontalLayout_2">
        <item>
         <widget class="QTextEdit" name="logMessage">
+         <property name="statusTip">
+          <string>Show Log Message</string>
+         </property>
          <property name="placeholderText">
           <string>Log message will shown here</string>
          </property>
@@ -524,7 +610,7 @@ QGroupBox::title {
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1024</width>
+     <width>1256</width>
      <height>17</height>
     </rect>
    </property>

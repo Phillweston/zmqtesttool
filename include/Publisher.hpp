@@ -52,9 +52,9 @@ class Publisher : public SampleBase
     typedef SampleBase super;
 
 public:
-    explicit Publisher(ZMQContext& context, const QString& address, const QString& topic, const QString& message, int frequency, QObject* parent = 0)
+    explicit Publisher(ZMQContext& context, const QString& address, const QString& topic, const QString& message, const int& frequency, const bool& useHex, QObject* parent = 0)
         : super(parent)
-        , address_(address), topic_(topic), message_(message), frequency_(frequency)
+        , address_(address), topic_(topic), message_(message), frequency_(frequency), useHex_(useHex)
         , socket_(0)
     {
         socket_ = context.createSocket(ZMQSocket::TYP_PUB, this);
@@ -79,14 +79,30 @@ protected slots:
     {
         static quint64 counter = 0;
 
-        QList< QByteArray > msg;
+        QList<QByteArray> msg;
+        QList<QByteArray> hexMsg;
         msg += topic_.toLocal8Bit();
-        //msg += QString("MSG[%1: %2]").arg(++counter).arg(QDateTime::currentDateTime().toLocalTime().toString(Qt::ISODate)).toLocal8Bit();
         msg += message_.toLocal8Bit();
-        socket_->sendMessage(msg);
         QString currentTime = getCurrentTime();
-        qDebug() << "Publisher> " << msg << ", Timestamp: " << currentTime;
-        emit messageSent(currentTime, msg);
+
+        if (useHex_)
+        {
+            for (const QByteArray& ba : msg)
+            {
+                hexMsg.append(ba.toHex());
+            }
+            socket_->sendMessage(hexMsg);
+
+            qDebug() << "Publisher> " << hexMsg << ", Timestamp: " << currentTime;
+            emit messageSent(currentTime, hexMsg);
+        }
+        else
+        {
+            socket_->sendMessage(msg);
+
+            qDebug() << "Publisher> " << msg << ", Timestamp: " << currentTime;
+            emit messageSent(currentTime, msg);
+        }
 
         if (frequency_ != 0)
             QTimer::singleShot(1000 / frequency_, this, SLOT(sendMessage()));
@@ -97,7 +113,7 @@ private:
     QString topic_;
     QString message_;
     int frequency_;
-
+    bool useHex_;
     ZMQSocket* socket_;
 };
 

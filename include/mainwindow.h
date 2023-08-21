@@ -53,7 +53,7 @@ private:
     Test Start: The context is started, followed by the publisher thread. A QTimer is used to stop the publisher after 6 seconds.
     Postconditions Check: After the test is finished, conditions are checked to verify the behavior of the publisher (e.g., number of pings sent, failures, etc.).
     */
-    void publish(QString ipAddress, int port, QString topic, QString message, int frequency, int maxPublishTime);
+    void publish(QString ipAddress, int port, QString topic, QString message, int frequency, int maxPublishTime,bool useHex = false);
 
     /*
     Subscriber Context:
@@ -64,7 +64,7 @@ private:
     Test Start: The subscriber thread starts with a slight delay (500 ms) and is stopped after 6 seconds, similar to the publisher.
     Postconditions Check: After the test is finished, conditions are checked to verify the behavior of the subscriber (e.g., number of pings received, failures, etc.).
     */
-    void subscribe(QString ipAddress, int port, QString topic, int maxSubscribeTime);
+    void subscribe(QString ipAddress, int port, QString topic, int maxSubscribeTime, bool useHex = false);
 
 private slots:
 
