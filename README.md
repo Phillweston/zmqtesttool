@@ -142,7 +142,8 @@ lvruitao
 ## Millstones
 
 - [x] 2023.08.14: New project using Qt5.15 C++ environment, add ZeroMQ library.
-- [x] 2023.06.21: Preliminary version complete.
+- [x] 2023.08.21: Basic subscribe and publish function test.
+- [ ] 2023.08.22: Preliminary version.
 
 ## License
 

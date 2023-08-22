@@ -53,7 +53,7 @@ private:
     Test Start: The context is started, followed by the publisher thread. A QTimer is used to stop the publisher after 6 seconds.
     Postconditions Check: After the test is finished, conditions are checked to verify the behavior of the publisher (e.g., number of pings sent, failures, etc.).
     */
-    void publish(QString ipAddress, int port, QString topic, QString message, int frequency, int maxPublishTime,bool useHex = false);
+    void publish(QString ipAddress, int port, QString topic, QString message, int frequency, bool useHex = false);
 
     /*
     Subscriber Context:
@@ -64,13 +64,13 @@ private:
     Test Start: The subscriber thread starts with a slight delay (500 ms) and is stopped after 6 seconds, similar to the publisher.
     Postconditions Check: After the test is finished, conditions are checked to verify the behavior of the subscriber (e.g., number of pings received, failures, etc.).
     */
-    void subscribe(QString ipAddress, int port, QString topic, int maxSubscribeTime, bool useHex = false);
+    void subscribe(QString ipAddress, int port, QString topic, bool useHex = false);
 
 private slots:
 
-    void messagePublishFinished();
-
-    void messageSubscribeFinished();
+    void messageFinished();
+    
+    void messageSendFinished();
 
     void handleLogMessage(int type, const QString& message);
 
@@ -91,6 +91,13 @@ private slots:
     void messageReceived(const QString& timeStamp, const QList<QByteArray>& messageList);
 
     /**
+     * @brief Updates the text edit with the buffered messages.
+     * @param None
+     * @return None
+     */
+    void updateTextEdit();
+
+    /**
      * @brief Resets the values of the host and ports to their default values.
      * @param None
      * @return None
@@ -108,32 +115,27 @@ private slots:
      * @param None
      * @return None
      */
-    void on_buttonPublishStart_clicked();
+    void on_buttonSend_clicked();
 
     /**
      * @brief This function is called when the user clicks on the "Subscribe Start" button. It retrieves the IP address, port, and topic from the UI, validates them, and then calls the subscribe function to start the subscription.
      * @param None
      * @return None
      */
-    void on_buttonSubscribeStart_clicked();
+    void on_buttonStart_clicked();
 
     /**
      * @brief Stops the publisher thread and disables the "Stop" button while enabling the "Start" button.
      * @param None
      * @return None
      */
-    void on_buttonPublishStop_clicked();
+    void on_buttonStop_clicked();
 
-    /**
-     * @brief Slot function for stopping the subscriber thread.
-     * @param None
-     * @return None
-     */
-    void on_buttonSubscribeStop_clicked();
+    void on_buttonClearAll_clicked();
 
     void on_buttonPublishClearAll_clicked();
 
-    void on_buttonSubscribeClearAll_clicked();
+    void on_buttonRemoveTopic_clicked();
 
     /**
      * @brief Slot function that is called when the state of the "Loop" checkbox is changed.
@@ -160,11 +162,17 @@ private slots:
 
     void on_actionQuit_triggered();
 
+    void on_buttonAddTopic_clicked();
+
 private:
     Ui::MainWindow *ui;
-    // QThread* subscriberThread = nullptr;
-    // QThread* publisherThread = nullptr;
     AboutDialog aboutdlg;
+
+    QTimer *updateTimer;
+    QStringList bufferedMessages;
+    QMutex bufferedMessagesMutex;
+
+    void startInit();
 
     /**
      * @brief Checks if the given string contains only alphanumeric characters.

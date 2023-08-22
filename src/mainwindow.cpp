@@ -16,18 +16,36 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    // Create the timer but don't start it yet
+    updateTimer = new QTimer(this);
+    connect(updateTimer, &QTimer::timeout, this, &MainWindow::updateTextEdit);
 
-    ui->buttonPublishStop->setEnabled(false);
-    ui->buttonSubscribeStop->setEnabled(false);
-    ui->buttonPublishStart->setEnabled(true);
-    ui->buttonSubscribeStart->setEnabled(true);
-    ui->spinBoxFrequency->setEnabled(false);
-    ui->textViewPublish->setReadOnly(true);
-    ui->textViewSubscribe->setReadOnly(true);
-    ui->decPublish->setChecked(true);
-    ui->decSubscribe->setChecked(true);
+    startInit();
+
+    ui->buttonSend->setEnabled(false);
+    ui->buttonStop->setEnabled(false);
+    ui->buttonStart->setEnabled(true);
+    ui->publishUpdateFrequency->setEnabled(false);
+    ui->textView->setReadOnly(true);
+    ui->decDisplay->setChecked(true);
+    ui->checkBoxLoop->setChecked(false);
     ui->statusBar->showMessage(tr("Welcome to use ZeroMQ Test Tool!"));
     ui->jouav->setText(tr("<a href=\"http://www.jouav.com\">www.jouav.com</a>"));
+}
+
+
+MainWindow::~MainWindow()
+{
+    delete updateTimer;
+    delete ui;
+}
+
+
+void MainWindow::startInit()
+{
+    QStandardItemModel *subscribeModel = new QStandardItemModel();
+    subscribeModel->setHorizontalHeaderLabels(QStringList() << tr("Enable") << tr("Topic"));
+    ui->tableViewTopics->setModel(subscribeModel);
 }
 
 
@@ -39,7 +57,7 @@ MainWindow::MainWindow(QWidget *parent) :
 void MainWindow::showMessage(const QString &msg)
 {
     // Assume that ui->textEdit is your QTextEdit control.
-    ui->logMessage->append(msg);
+    //ui->logMessage->append(msg);
 }
 
 
@@ -72,7 +90,7 @@ Execution Thread: The publisher's functionality is set to run in a separate thre
 Test Start: The context is started, followed by the publisher thread. A QTimer is used to stop the publisher after 6 seconds.
 Postconditions Check: After the test is finished, conditions are checked to verify the behavior of the publisher (e.g., number of pings sent, failures, etc.).
 */
-void MainWindow::publish(QString ipAddress, int port, QString topic, QString message, int frequency, int maxPublishTime, bool useHex)
+void MainWindow::publish(QString ipAddress, int port, QString topic, QString message, int frequency, bool useHex)
 {
     try
     {
@@ -84,10 +102,13 @@ void MainWindow::publish(QString ipAddress, int port, QString topic, QString mes
         // Create publisher with the connection string
         samples::pubsub::Publisher* publisher = new samples::pubsub::Publisher(*context, connectionString, topic, message, frequency, useHex, this);
         connect(publisher, SIGNAL(messageSent(const QString&, const QList<QByteArray>&)), SLOT(messageSent(const QString&, const QList<QByteArray>&)));
-        connect(publisher, SIGNAL(finished()), SLOT(messagePublishFinished()));
+        connect(publisher, SIGNAL(finished()), SLOT(messageSendFinished()));
         connect(publisher, SIGNAL(signal_log(int, const QString&)), SLOT(handleLogMessage(int, const QString&)));
         // Stop publishing after user clicked the stop button, only available when in loop publish mode
-        connect(ui->buttonPublishStop, &QPushButton::clicked, publisher, &samples::pubsub::Publisher::stop);
+        connect(ui->buttonStop, &QPushButton::clicked, publisher, &samples::pubsub::Publisher::stop);
+
+        QEventLoop loop;
+        connect(publisher, SIGNAL(finished()), &loop, SLOT(quit()));
 
         // QSignalSpy spyPublisherMessageSent(publisher, SIGNAL(messageSent(const QString&, const QList<QByteArray>&)));
         // QSignalSpy spyPublisherFailure(publisher, SIGNAL(failure(const QString&)));
@@ -101,15 +122,14 @@ void MainWindow::publish(QString ipAddress, int port, QString topic, QString mes
         context->start();
         publisherThread->start();
 
-        // Note: Adjust waiting time based on your application's requirement.
-        QTimer::singleShot(maxPublishTime * 1000, publisher, SLOT(stop()));
-        QTest::qWait(maxPublishTime * 1000 + 100);
-
         // CHECK POSTCONDITIONS
         // QCOMPARE(spyPublisherFailure.size(), 0);
         // QVERIFY2(spyPublisherMessageSent.size() > 0, "Server didn't send any messages.");
         // QCOMPARE(spyPublisherFinished.size(), 1);
         // QCOMPARE(spyPublisherThreadFinished.size(), 1);
+
+        // Start the event loop to wait for the publisher to finish
+        loop.exec();
     }
     catch (std::exception& ex)
     {
@@ -117,14 +137,6 @@ void MainWindow::publish(QString ipAddress, int port, QString topic, QString mes
         ui->statusBar->showMessage(tr("Error: Could not publish message"));
         QFAIL(ex.what());
     }
-}
-
-
-void MainWindow::messagePublishFinished()
-{
-    // TODO:
-    ui->buttonPublishStop->setEnabled(false);
-    ui->buttonPublishStart->setEnabled(true);
 }
 
 
@@ -153,16 +165,26 @@ void MainWindow::handleLogMessage(int type, const QString& message)
 }
 
 
+void MainWindow::on_buttonClearAll_clicked()
+{
+    ui->textView->clear();
+    ui->statusBar->showMessage(tr("Cleared all messages"));
+}
+
+
 /**
  * @brief Stops the publisher thread and disables the "Stop" button while enabling the "Start" button.
  * @param None
  * @return None
  */
-void MainWindow::on_buttonPublishStop_clicked()
+void MainWindow::on_buttonStop_clicked()
 {
-    ui->buttonPublishStop->setEnabled(false);
-    ui->buttonPublishStart->setEnabled(true);
-    ui->statusBar->showMessage(tr("Publish stopped"));
+    updateTimer->stop();
+
+    ui->buttonSend->setEnabled(false);
+    ui->buttonStop->setEnabled(false);
+    ui->buttonStart->setEnabled(true);
+    ui->statusBar->showMessage(tr("Stopped"));
 }
 
 
@@ -175,7 +197,7 @@ Execution Thread: Similar to the publisher, the subscriber's functionality runs 
 Test Start: The subscriber thread starts with a slight delay (500 ms) and is stopped after 6 seconds, similar to the publisher.
 Postconditions Check: After the test is finished, conditions are checked to verify the behavior of the subscriber (e.g., number of pings received, failures, etc.).
 */
-void MainWindow::subscribe(QString ipAddress, int port, QString topic, int maxSubscribeTime, bool useHex)
+void MainWindow::subscribe(QString ipAddress, int port, QString topic, bool useHex)
 {
     try
     {
@@ -187,11 +209,14 @@ void MainWindow::subscribe(QString ipAddress, int port, QString topic, int maxSu
         // Create subscriber with the connection string and the specified topic
         samples::pubsub::Subscriber* subscriber = new samples::pubsub::Subscriber(*context, connectionString, topic, useHex);
         connect(subscriber, SIGNAL(messageReceived(const QString&, const QList<QByteArray>&)), SLOT(messageReceived(const QString&, const QList<QByteArray>&)));
-        connect(subscriber, SIGNAL(finished()), SLOT(messageSubscribeFinished()));
+        connect(subscriber, SIGNAL(finished()), SLOT(messageFinished()));
         connect(subscriber, SIGNAL(signal_log(int, const QString&)), SLOT(handleLogMessage(int, const QString&)));
 
         // Stop subscribing after user clicked the stop button
-        connect(ui->buttonSubscribeStop, &QPushButton::clicked, subscriber, &samples::pubsub::Subscriber::stop);
+        connect(ui->buttonStop, &QPushButton::clicked, subscriber, &samples::pubsub::Subscriber::stop);
+
+        QEventLoop loop;
+        connect(subscriber, SIGNAL(finished()), &loop, SLOT(quit()));
 
         // QSignalSpy spySubscriberMessageReceived(subscriber, SIGNAL(messageReceived(const QString&, const QList<QByteArray>&)));
         // QSignalSpy spySubscriberFailure(subscriber, SIGNAL(failure(const QString&)));
@@ -205,16 +230,15 @@ void MainWindow::subscribe(QString ipAddress, int port, QString topic, int maxSu
         context->start();
         subscriberThread->start();
 
-        // Note: Adjust waiting time based on your application's requirement.
-        QTimer::singleShot(maxSubscribeTime * 1000, subscriber, SLOT(stop()));
-        QTest::qWait(maxSubscribeTime * 1000 + 100);
-
         // CHECK POSTCONDITIONS
         // qDebug() << "Subscriber messages received:" << spySubscriberMessageReceived.size();
         // QCOMPARE(spySubscriberFailure.size(), 0);
         // QVERIFY2(spySubscriberMessageReceived.size() > 0, "Client didn't receive any messages.");
         // QCOMPARE(spySubscriberFinished.size(), 1);
         // QCOMPARE(spySubscriberThreadFinished.size(), 1);
+
+        // Start the event loop to wait for the subscriber to finish
+        loop.exec();
     }
     catch (std::exception& ex)
     {
@@ -225,11 +249,18 @@ void MainWindow::subscribe(QString ipAddress, int port, QString topic, int maxSu
 }
 
 
-void MainWindow::messageSubscribeFinished()
+void MainWindow::messageSendFinished()
 {
-    ui->buttonSubscribeStop->setEnabled(false);
-    ui->buttonSubscribeStart->setEnabled(true);
-    ui->statusBar->showMessage(tr("Message subscription expired"));
+    ui->buttonSend->setEnabled(true);
+    ui->statusBar->showMessage(tr("Message Sent"));
+}
+
+
+void MainWindow::messageFinished()
+{
+    ui->buttonStop->setEnabled(false);
+    ui->buttonStart->setEnabled(true);
+    ui->statusBar->showMessage(tr("Message Stopped"));
 }
 
 
@@ -242,14 +273,19 @@ void MainWindow::messageSubscribeFinished()
 void MainWindow::messageSent(const QString& timeStamp, const QList<QByteArray>& messageList)
 {
     ui->lcdNumberPublish->display(ui->lcdNumberPublish->value() + 1);
-    ui->textViewPublish->append("TimeStamp: ");
-    ui->textViewPublish->append(timeStamp);
-    ui->textViewPublish->append(" Message: ");
+
+    QStringList localBuffer;
+    localBuffer.append("Publish:");
+    localBuffer.append("TimeStamp: ");
+    localBuffer.append(timeStamp);
+    localBuffer.append("Topic and Message: ");
     foreach(const QByteArray& message, messageList)
     {
-        ui->textViewPublish->append(QString::fromUtf8(message));
+        localBuffer.append(QString::fromUtf8(message));
     }
-    ui->textViewPublish->append("\n");
+    localBuffer.append("\n");
+
+    bufferedMessages.append(localBuffer.join("\n"));
 }
 
 
@@ -262,33 +298,37 @@ void MainWindow::messageSent(const QString& timeStamp, const QList<QByteArray>& 
 void MainWindow::messageReceived(const QString& timeStamp, const QList<QByteArray>& messageList)
 {
     ui->lcdNumberSubscribe->display(ui->lcdNumberSubscribe->value() + 1);
-    ui->textViewSubscribe->append("TimeStamp: ");
-    ui->textViewSubscribe->append(timeStamp);
-    ui->textViewSubscribe->append(" Message: ");
+
+    QStringList localBuffer;
+    localBuffer.append("Subscribe:");
+    localBuffer.append("TimeStamp: ");
+    localBuffer.append(timeStamp);
+    localBuffer.append("Topic and Message: ");
+
+    // TODO: Filter out the topic from the message list
     foreach(const QByteArray& message, messageList)
     {
-        ui->textViewSubscribe->append(QString::fromUtf8(message));
+        localBuffer.append(QString::fromUtf8(message));
     }
-    ui->textViewSubscribe->append("\n");
+    localBuffer.append("\n");
+
+    bufferedMessages.append(localBuffer.join("\n"));
 }
 
 
 /**
- * @brief Slot function.
+ * @brief Updates the text edit with the buffered messages.
  * @param None
  * @return None
  */
-void MainWindow::on_buttonSubscribeStop_clicked()
+void MainWindow::updateTextEdit()
 {
-    ui->buttonSubscribeStop->setEnabled(false);
-    ui->buttonSubscribeStart->setEnabled(true);
-    ui->statusBar->showMessage(tr("Subscribe stopped"));
-}
-
-
-MainWindow::~MainWindow()
-{
-    delete ui;
+    QMutexLocker locker(&bufferedMessagesMutex);
+    if (!bufferedMessages.isEmpty())
+    {
+        ui->textView->append(bufferedMessages.join("\n"));
+        bufferedMessages.clear();
+    }
 }
 
 
@@ -321,12 +361,20 @@ void MainWindow::on_buttonQuit_clicked()
  * @param None
  * @return None
  */
-void MainWindow::on_buttonPublishStart_clicked()
+void MainWindow::on_buttonSend_clicked()
 {
     QString ipAddress = ui->lineEditHost->text();
     int port = ui->spinBoxPortPublish->value();
+
+    // TODO: Get the topic from the ui view
     QString topic = ui->lineEditPublishTopic->text();
-    int maxTime = ui->spinBoxMaxPublishTime->value();
+    if (!isValidString(topic))
+    {
+        QMessageBox::critical(this, tr("Error"), tr("Please enter a valid topic"));
+        ui->statusBar->showMessage(tr("Please enter a valid topic"));
+        return;
+    }
+
     bool useHex = false;
 
     int frequency = 0;
@@ -340,19 +388,14 @@ void MainWindow::on_buttonPublishStart_clicked()
     if (!isValidIPv4(ipAddress))
     {
         QMessageBox::critical(this, tr("Error"), tr("Please enter a valid IP address"));
+        ui->statusBar->showMessage(tr("Please enter a valid IP address"));
         return;
     }
 
     if (port < 0 || port > 65535)
     {
         QMessageBox::critical(this, tr("Error"), tr("Please enter a valid port"));
-        return;
-    }
-
-    if (!isValidString(topic))
-    {
-        QMessageBox::critical(this, tr("Error"), tr("Please enter a valid topic"));
-        ui->statusBar->showMessage(tr("Please enter a valid topic"));
+        ui->statusBar->showMessage(tr("Please enter a valid port"));
         return;
     }
 
@@ -363,31 +406,60 @@ void MainWindow::on_buttonPublishStart_clicked()
         return;
     }
 
-    if (ui->hexPublish->isChecked())
+    if (ui->hexDisplay->isChecked())
         useHex = true;
     else
         useHex = false;
 
-    ui->buttonPublishStart->setEnabled(false);
-    ui->buttonPublishStop->setEnabled(true);
-    ui->lcdNumberPublish->display(0);
+    ui->buttonSend->setEnabled(false);
     ui->statusBar->showMessage(tr("Publishing message ..."));
 
-    publish(ipAddress, port, topic, contents, frequency, maxTime, useHex);
+    publish(ipAddress, port, topic, contents, frequency, useHex);
 }
 
 
 /**
- * @brief This function is called when the user clicks on the "Subscribe Start" button. It retrieves the IP address, port, and topic from the UI, validates them, and then calls the subscribe function to start the subscription.
+ * @brief This function is called when the user clicks on the "Start" button. It retrieves the IP address, port, and topic from the UI, validates them, and then calls the subscribe function to start the subscription.
  * @param None
  * @return None
  */
-void MainWindow::on_buttonSubscribeStart_clicked()
+void MainWindow::on_buttonStart_clicked()
 {
+    int updateFrequency = ui->spinBoxFrequency->value();
+    if (updateFrequency < 1 || updateFrequency > 200)
+    {
+        QMessageBox::critical(this, tr("Error"), tr("Please enter a valid update frequency"));
+        return;
+    }
+
+    // Starts the timer to update every 100ms
+    updateTimer->start((int)(1000 / updateFrequency));
+
     QString ipAddress = ui->lineEditHost->text();
     int port = ui->spinBoxPortSubscribe->value();
-    QString topic = ui->lineEditSubscribeTopic->text();
-    int maxTime = ui->spinBoxMaxSubscribeTime->value();
+
+    QStringList topics;
+    // Get the topic from the table view
+    QStandardItemModel *model = qobject_cast<QStandardItemModel*>(ui->tableViewTopics->model());
+    int rows = model->rowCount();
+    for (int i = 0; i < rows; i++)
+    {
+        QStandardItem *item = model->item(i, 0);
+        if (item->checkState() == Qt::Checked)
+        {
+            // Second column contains the topic
+            QString topic = model->item(i, 1)->text();
+            topics.append(topic);
+        }
+    }
+
+    if (topics.isEmpty())
+    {
+        QMessageBox::critical(this, tr("Error"), tr("No topic enabled for subscription"));
+        ui->statusBar->showMessage(tr("No topic enabled for subscription"));
+        return;
+    }
+
     bool useHex = false;
 
     if (!isValidIPv4(ipAddress))
@@ -404,24 +476,22 @@ void MainWindow::on_buttonSubscribeStart_clicked()
         return;
     }
 
-    if (!isValidString(topic))
-    {
-        QMessageBox::critical(this, tr("Error"), tr("Please enter a valid topic"));
-        ui->statusBar->showMessage(tr("Please enter a valid topic"));
-        return;
-    }
-
-    if (ui->hexSubscribe->isChecked())
+    if (ui->hexDisplay->isChecked())
         useHex = true;
     else
         useHex = false;
 
-    ui->buttonSubscribeStart->setEnabled(false);
-    ui->buttonSubscribeStop->setEnabled(true);
+    ui->buttonSend->setEnabled(true);
+    ui->buttonStart->setEnabled(false);
+    ui->buttonStop->setEnabled(true);
     ui->lcdNumberSubscribe->display(0);
+    ui->lcdNumberPublish->display(0);
     ui->statusBar->showMessage(tr("Subscribing message ..."));
 
-    subscribe(ipAddress, port, topic, maxTime, useHex);
+    for (auto& topic : topics)
+    {
+        subscribe(ipAddress, port, topic, useHex);
+    }
 }
 
 
@@ -432,24 +502,9 @@ void MainWindow::on_buttonSubscribeStart_clicked()
  */
 void MainWindow::on_buttonPublishClearAll_clicked()
 {
-    ui->textViewPublish->clear();
-    ui->lineEditPublishTopic->clear();
-    ui->lineEditPublishMessage->clear();
-    ui->lcdNumberPublish->display(0);
-    ui->statusBar->showMessage(tr("Information cleared"));
-}
-
-
-/**
- * @brief Clears the text view and line edit for the subscribe topic.
- * @param None
- * @return None
- */
-void MainWindow::on_buttonSubscribeClearAll_clicked()
-{
-    ui->textViewSubscribe->clear();
+    ui->textView->clear();
     ui->lineEditSubscribeTopic->clear();
-    ui->lcdNumberSubscribe->display(0);
+    ui->lineEditPublishMessage->clear();
     ui->statusBar->showMessage(tr("Information cleared"));
 }
 
@@ -464,14 +519,52 @@ void MainWindow::on_checkBoxLoop_stateChanged(int arg1)
 {
     if (arg1 == Qt::Checked)
     {
-        ui->spinBoxFrequency->setEnabled(true);
-        ui->buttonPublishStop->setEnabled(false);
+        ui->publishUpdateFrequency->setEnabled(true);
     }
     else
     {
-        ui->spinBoxFrequency->setEnabled(false);
-        ui->buttonPublishStop->setEnabled(true);
+        ui->publishUpdateFrequency->setEnabled(false);
     }
+}
+
+
+void MainWindow::on_buttonAddTopic_clicked()
+{
+    // Get the model from the table view
+    QStandardItemModel *itemModel = qobject_cast<QStandardItemModel*>(ui->tableViewTopics->model());
+
+    // Get the new topic from the line edit
+    QString newTopic = ui->lineEditSubscribeTopic->text();
+    if (!isValidString(newTopic))
+    {
+        QMessageBox::critical(this, tr("Error"), tr("Please enter a valid topic"));
+        ui->statusBar->showMessage(tr("Please enter a valid topic"));
+        return;
+    }
+
+    QList<QStandardItem *> items;
+    QStandardItem *checkboxItem = new QStandardItem();
+    checkboxItem->setCheckable(true);
+    checkboxItem->setCheckState(Qt::Checked);
+    items.append(checkboxItem);
+    items.append(new QStandardItem(newTopic));
+
+    itemModel->appendRow(items);
+    ui->tableViewTopics->setModel(itemModel);
+}
+
+void MainWindow::on_buttonRemoveTopic_clicked()
+{
+    // TODO: Write a function to remove topic from table
+    QStandardItemModel *itemModel = qobject_cast<QStandardItemModel*>(ui->tableViewTopics->model());
+    
+    // Get the current index from the table view
+    QModelIndex index = ui->tableViewTopics->currentIndex();
+
+    // Remove the row from the model
+    itemModel->removeRow(index.row());
+
+    ui->statusBar->showMessage(tr("Topic removed"));
 }
 
 

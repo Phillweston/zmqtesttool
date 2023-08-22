@@ -20,6 +20,7 @@
         "exception": "cpp",
         "functional": "cpp",
         "memory": "cpp",
-        "unordered_map": "cpp"
+        "unordered_map": "cpp",
+        "thread": "cpp"
     }
 }

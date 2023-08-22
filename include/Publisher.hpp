@@ -87,9 +87,13 @@ protected slots:
 
         if (useHex_)
         {
-            for (const QByteArray& ba : msg)
+            hexMsg.append(msg.at(0));
+            if (msg.size() > 1)  // Ensure there are at least two elements
             {
-                hexMsg.append(ba.toHex());
+                for (int i = 1; i < msg.size(); ++i)
+                {
+                    hexMsg.append(msg.at(i).toHex());
+                }
             }
             socket_->sendMessage(hexMsg);
 
@@ -105,7 +109,13 @@ protected slots:
         }
 
         if (frequency_ != 0)
+        {
             QTimer::singleShot(1000 / frequency_, this, SLOT(sendMessage()));
+        }
+        else
+        {
+            emit finished();
+        }
     }
 
 private:

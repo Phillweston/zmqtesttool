@@ -20,7 +20,7 @@ SOURCES += src/main.cpp\
         src/aboutdialog.cpp \
         src/mainwindow.cpp
 
-HEADERS  += include/mainwindow.h \
+HEADERS += include/mainwindow.h \
     include/aboutdialog.h \
     include/Publisher.hpp \
     include/SampleBase.hpp \
@@ -33,7 +33,7 @@ HEADERS  += include/mainwindow.h \
     include/nzmqt/impl.hpp \
     include/nzmqt/nzmqt.hpp
 
-FORMS    += ui/aboutdialog.ui \
+FORMS += ui/aboutdialog.ui \
     ui/mainwindow.ui
 
 INCLUDEPATH += include
