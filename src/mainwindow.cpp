@@ -86,6 +86,9 @@ void MainWindow::logMessage(const QString &msg)
 QThread* MainWindow::makeExecutionThread(nzmqt::samples::SampleBase& sample) const
 {
     QThread* thread = new QThread;
+
+    // Reparent before moving an object to a different thread
+    sample.setParent(nullptr);
     sample.moveToThread(thread);
 
     bool connected = false;
