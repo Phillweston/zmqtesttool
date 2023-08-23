@@ -36,7 +36,7 @@ void DebugMessageHandler(QtMsgType type, const QMessageLogContext& context, cons
             break;
     }
 
-    mainWindowInstance->showMessage(message);
+    mainWindowInstance->logMessage(message);
 }
 
 int main(int argc, char *argv[])

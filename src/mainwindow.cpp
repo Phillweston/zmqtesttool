@@ -20,6 +20,11 @@ MainWindow::MainWindow(QWidget *parent) :
     updateTimer = new QTimer(this);
     connect(updateTimer, &QTimer::timeout, this, &MainWindow::updateTextEdit);
 
+    updateLogTimer = new QTimer(this);
+    // Starts the timer to update every 100ms
+    updateLogTimer->start(100);
+    connect(updateLogTimer, &QTimer::timeout, this, &MainWindow::showMessage);
+
     startInit();
 
     ui->buttonSend->setEnabled(false);
@@ -37,6 +42,7 @@ MainWindow::MainWindow(QWidget *parent) :
 MainWindow::~MainWindow()
 {
     delete updateTimer;
+    delete updateLogTimer;
     delete ui;
 }
 
@@ -54,10 +60,21 @@ void MainWindow::startInit()
  * @param None
  * @return None
  */
-void MainWindow::showMessage(const QString &msg)
+void MainWindow::showMessage()
 {
-    // Assume that ui->textEdit is your QTextEdit control.
-    //ui->logMessage->append(msg);
+    QMutexLocker locker(&bufferedLogMessagesMutex);
+    if (!bufferedLogMessages.isEmpty())
+    {
+        ui->logMessage->append(bufferedLogMessages.join("\n"));
+        bufferedLogMessages.clear();
+    }
+}
+
+
+void MainWindow::logMessage(const QString &msg)
+{
+    QMutexLocker locker(&bufferedLogMessagesMutex);
+    bufferedLogMessages.append(msg);
 }
 
 
@@ -285,6 +302,7 @@ void MainWindow::messageSent(const QString& timeStamp, const QList<QByteArray>& 
     }
     localBuffer.append("\n");
 
+    QMutexLocker locker(&bufferedMessagesMutex);
     bufferedMessages.append(localBuffer.join("\n"));
 }
 
@@ -312,7 +330,8 @@ void MainWindow::messageReceived(const QString& timeStamp, const QList<QByteArra
     }
     localBuffer.append("\n");
 
-    bufferedMessages.append(localBuffer.join("\n"));
+    QMutexLocker locker(&bufferedMessagesMutex);
+    bufferedMessages.append(localBuffer);
 }
 
 

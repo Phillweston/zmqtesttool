@@ -68,10 +68,7 @@ protected:
     void startImpl()
     {
         socket_->bindTo(address_);
-        if (frequency_ != 0)
-            QTimer::singleShot(1000 / frequency_, this, SLOT(sendMessage()));
-        else
-            QTimer::singleShot(1000, this, SLOT(sendMessage()));
+        QTimer::singleShot(100, this, SLOT(sendMessage()));
     }
 
 protected slots:

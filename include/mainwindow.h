@@ -28,12 +28,7 @@ public:
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
-    /**
-     * @brief Show message on the text browser.
-     * @param None
-     * @return None
-     */
-    void showMessage(const QString &msg);
+    void logMessage(const QString &msg);
 
 protected:
     /**
@@ -67,6 +62,13 @@ private:
     void subscribe(QString ipAddress, int port, QString topic, bool useHex = false);
 
 private slots:
+
+    /**
+     * @brief Show message on the text browser.
+     * @param None
+     * @return None
+     */
+    void showMessage();
 
     void messageFinished();
     
@@ -169,8 +171,11 @@ private:
     AboutDialog aboutdlg;
 
     QTimer *updateTimer;
+    QTimer *updateLogTimer;
     QStringList bufferedMessages;
+    QStringList bufferedLogMessages;
     QMutex bufferedMessagesMutex;
+    QMutex bufferedLogMessagesMutex;
 
     void startInit();
 
