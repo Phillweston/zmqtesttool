@@ -114,7 +114,7 @@ void MainWindow::publish(QString ipAddress, int port, QString topic, QString mes
 {
     try
     {
-        QScopedPointer<ZMQContext> context(nzmqt::createDefaultContext());
+        QSharedPointer<ZMQContext> context(nzmqt::createDefaultContext());
 
         // Create the connection string using the given IP address and port
         QString connectionString = QString("tcp://%1:%2").arg(ipAddress).arg(port);
@@ -127,15 +127,14 @@ void MainWindow::publish(QString ipAddress, int port, QString topic, QString mes
         // Stop publishing after user clicked the stop button, only available when in loop publish mode
         connect(ui->buttonStop, &QPushButton::clicked, publisher, &samples::pubsub::Publisher::stop);
 
-        QEventLoop loop;
-        connect(publisher, SIGNAL(finished()), &loop, SLOT(quit()));
-
         // QSignalSpy spyPublisherMessageSent(publisher, SIGNAL(messageSent(const QString&, const QList<QByteArray>&)));
         // QSignalSpy spyPublisherFailure(publisher, SIGNAL(failure(const QString&)));
         // QSignalSpy spyPublisherFinished(publisher, SIGNAL(finished()));
 
         // Create publisher execution thread.
         QThread* publisherThread = makeExecutionThread(*publisher);
+        connect(publisherThread, &QThread::finished, [context](){}); // Keeps the context alive until the thread finishes
+        
         // QSignalSpy spyPublisherThreadFinished(publisherThread, SIGNAL(finished()));
 
         // START TEST
@@ -147,9 +146,6 @@ void MainWindow::publish(QString ipAddress, int port, QString topic, QString mes
         // QVERIFY2(spyPublisherMessageSent.size() > 0, "Server didn't send any messages.");
         // QCOMPARE(spyPublisherFinished.size(), 1);
         // QCOMPARE(spyPublisherThreadFinished.size(), 1);
-
-        // Start the event loop to wait for the publisher to finish
-        loop.exec();
     }
     catch (std::exception& ex)
     {
@@ -221,7 +217,7 @@ void MainWindow::subscribe(QString ipAddress, int port, QString topic, bool useH
 {
     try
     {
-        QScopedPointer<ZMQContext> context(nzmqt::createDefaultContext());
+        QSharedPointer<ZMQContext> context(nzmqt::createDefaultContext());
 
         // Create the connection string using the given IP address and port
         QString connectionString = QString("tcp://%1:%2").arg(ipAddress).arg(port);
@@ -235,15 +231,14 @@ void MainWindow::subscribe(QString ipAddress, int port, QString topic, bool useH
         // Stop subscribing after user clicked the stop button
         connect(ui->buttonStop, &QPushButton::clicked, subscriber, &samples::pubsub::Subscriber::stop);
 
-        QEventLoop loop;
-        connect(subscriber, SIGNAL(finished()), &loop, SLOT(quit()));
-
         // QSignalSpy spySubscriberMessageReceived(subscriber, SIGNAL(messageReceived(const QString&, const QList<QByteArray>&)));
         // QSignalSpy spySubscriberFailure(subscriber, SIGNAL(failure(const QString&)));
         // QSignalSpy spySubscriberFinished(subscriber, SIGNAL(finished()));
 
         // Create subscriber execution thread.
         QThread* subscriberThread = makeExecutionThread(*subscriber);
+        connect(subscriberThread, &QThread::finished, [context](){}); // Keeps the context alive until the thread finishes
+        
         // QSignalSpy spySubscriberThreadFinished(subscriberThread, SIGNAL(finished()));
 
         // Start subscriber thread
@@ -256,9 +251,6 @@ void MainWindow::subscribe(QString ipAddress, int port, QString topic, bool useH
         // QVERIFY2(spySubscriberMessageReceived.size() > 0, "Client didn't receive any messages.");
         // QCOMPARE(spySubscriberFinished.size(), 1);
         // QCOMPARE(spySubscriberThreadFinished.size(), 1);
-
-        // Start the event loop to wait for the subscriber to finish
-        loop.exec();
     }
     catch (std::exception& ex)
     {
@@ -305,8 +297,8 @@ void MainWindow::messageSent(const QString& timeStamp, const QList<QByteArray>& 
     }
     localBuffer.append("\n");
 
-    QMutexLocker locker(&bufferedMessagesMutex);
-    bufferedMessages.append(localBuffer.join("\n"));
+    QMutexLocker locker(&bufferedSendMessagesMutex);
+    bufferedSendMessages.append(localBuffer.join("\n"));
 }
 
 
@@ -333,8 +325,8 @@ void MainWindow::messageReceived(const QString& timeStamp, const QList<QByteArra
     }
     localBuffer.append("\n");
 
-    QMutexLocker locker(&bufferedMessagesMutex);
-    bufferedMessages.append(localBuffer);
+    QMutexLocker locker(&bufferedReceiveMessagesMutex);
+    bufferedReceiveMessages.append(localBuffer);
 }
 
 
@@ -345,11 +337,18 @@ void MainWindow::messageReceived(const QString& timeStamp, const QList<QByteArra
  */
 void MainWindow::updateTextEdit()
 {
-    QMutexLocker locker(&bufferedMessagesMutex);
-    if (!bufferedMessages.isEmpty())
+    QMutexLocker locker(&bufferedSendMessagesMutex);
+    if (!bufferedSendMessages.isEmpty())
     {
-        ui->textView->append(bufferedMessages.join("\n"));
-        bufferedMessages.clear();
+        ui->textView->append(bufferedSendMessages.join("\n"));
+        bufferedSendMessages.clear();
+    }
+
+    QMutexLocker locker2(&bufferedReceiveMessagesMutex);
+    if (!bufferedReceiveMessages.isEmpty())
+    {
+        ui->textView->append(bufferedReceiveMessages.join("\n"));
+        bufferedReceiveMessages.clear();
     }
 }
 

@@ -172,9 +172,11 @@ private:
 
     QTimer *updateTimer;
     QTimer *updateLogTimer;
-    QStringList bufferedMessages;
+    QStringList bufferedSendMessages;
+    QStringList bufferedReceiveMessages;
     QStringList bufferedLogMessages;
-    QMutex bufferedMessagesMutex;
+    QMutex bufferedSendMessagesMutex;
+    QMutex bufferedReceiveMessagesMutex;
     QMutex bufferedLogMessagesMutex;
 
     void startInit();
