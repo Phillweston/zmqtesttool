@@ -39,7 +39,7 @@ In a console type:
 
 ***Test your installation***
 
-In order to see if everything works well you can compile and run unit tests provided with nzmqt. Just compile ``nzmqt_test.pro`` project located under ``<path-to-nzmqt>/src`` directory. If the build is successful you will find an ``nzmqt_test`` executable under ``<path-to-nzmqt>/bin`` directory. Run this binary in a console and look if all tests passed. If some tests did not pass please [file a bug][nzmqt issue tracker] using the nzmqt issue tracker on GitHub.
+In order to see if everything works well you can compile and run unit tests provided with nzmqt. Just compile ``zmqtesttool.pro`` project located under project root directory. If the build is successful you will find an ``zmqtesttool`` executable under ``build-xxx`` directory (Path is defined by your compiler setting in Qt Creator). Run this binary in a console and look if ui emerges normally. For future reference and bug tracking, please [file a bug][nzmqt issue tracker] using the nzmqt issue tracker on GitHub.
 
 ### Setup your own project to use nzmqt
 
@@ -100,15 +100,13 @@ Documentation
 
 
  [cppzmq]:              https://github.com/zeromq/cppzmq                                        "C++ binding for 0MQ on GitHub"
- [Qt 4.8.x]:            http://download.qt-project.org/official_releases/qt/4.8/                "Qt 4.8.x download page"
- [zeromq 3.2.x]:        http://www.zeromq.org/intro:get-the-software                            "0MQ download page"
+ [Qt 5.15.x]:            http://download.qt-project.org/official_releases/qt/5.15/                "Qt 5.15.x download page"
+ [zeromq 4.3.x]:        http://www.zeromq.org/intro:get-the-software                            "0MQ download page"
  [QMake]:               http://doc-snapshot.qt-project.org/qt5-stable/qmake/qmake-manual.html   "Latest QMake manual"
  [nzmqt issue tracker]: https://github.com/jonnydee/nzmqt/issues                                "nzmqt issue tracker on GitHub"
-
- [API reference]:       Software-API-Reference.md                                               "nzmqt API reference"
- [changelog]:           ../CHANGELOG.md                                                         "nzmqt software changelog"
- [software license]:    ../LICENSE.md                                                           "nzmqt software license"
- [samples]:             Samples.md                                                              "nzmqt samples overview"
+ [changelog]:           CHANGELOG.md                                                         "zmqtesttool software changelog"
+ [software license]:    LICENSE.md                                                           "zmqtesttool software license"
+ [User_Manual]:             User_Manual.md                                                              "zmqtesttool user manual"
 
 ## Author
 
@@ -120,19 +118,22 @@ lvruitao
   - `main.cpp` - main entrance for program
 - **mainwindow**
   - `mainwindow.cpp` - main window interface and related implementation
-  - `mainwindow.h` - header file for main window
+  - `mainwindow.h` - header file for the main window
 - **aboutdialog**
   - `aboutdialog.cpp` - network about window interface and related implementation
   - `aboutdialog.h` - header file for about
 - **include**
   - **cppzmq**
     - `zmq_util.h` - zeromq utility header file
-    - `zmq.h` - zeromq fundamental header file for c
+    - `zmq.h` - zeromq fundamental header file for c (All of its headers corresponding to the implementations inside `libzmq-v142-mt-4_3_5.dll` dynamic link library)
     - `zmq.hpp` - zeromq header file for c++
   - **nzmqt**
     - `global.hpp` - global header file for NZMQT_API
     - `impl.hpp` - implementation header file for NZMQT_API
     - `nzmqt.hpp` - nzmqt header file
+  - `Publisher.hpp` - publisher header file and implementation
+  - `Subscriber.hpp` - subscriber header file and implementation
+  - `SampleBase.hpp` - sample base header file and implementation
 
 ## Library Dependencies
 
@@ -143,7 +144,7 @@ lvruitao
 
 - [x] 2023.08.14: New project using Qt5.15 C++ environment, add ZeroMQ library.
 - [x] 2023.08.21: Basic subscribe and publish function test.
-- [ ] 2023.08.22: Preliminary version.
+- [x] 2023.08.23: Preliminary version.
 
 ## License
 

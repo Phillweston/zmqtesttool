@@ -47,6 +47,12 @@ class SampleBase : public QObject
     Q_OBJECT
     typedef QObject super;
 
+public:
+    virtual ~SampleBase() {}
+
+    void startAction(const QStringList& args);
+    void stopAction(const QStringList& args);
+
 signals:
     void finished();
     void failure(const QString& what);
@@ -59,7 +65,10 @@ public slots:
 protected:
     SampleBase(QObject* parent);
 
-    virtual void startImpl() = 0;
+    virtual void initialize() = 0;
+
+    virtual void startImpl(const QStringList& args) = 0;
+    virtual void stopImpl(const QStringList& args) = 0;
 
     static void sleep(unsigned long msecs);
 
@@ -85,7 +94,39 @@ inline void SampleBase::start()
 {
     try
     {
-        startImpl();
+        initialize();
+    }
+    catch (const nzmqt::ZMQException& ex)
+    {
+        qWarning() << Q_FUNC_INFO << "Exception:" << ex.what();
+        QString info = QString("Exception: %1").arg(ex.what());
+        emit failure(ex.what());
+        emit finished();
+        emit signal_log(1, info);
+    }
+}
+
+inline void SampleBase::startAction(const QStringList& args)
+{
+    try
+    {
+        startImpl(args);
+    }
+    catch (const nzmqt::ZMQException& ex)
+    {
+        qWarning() << Q_FUNC_INFO << "Exception:" << ex.what();
+        QString info = QString("Exception: %1").arg(ex.what());
+        emit failure(ex.what());
+        emit finished();
+        emit signal_log(1, info);
+    }
+}
+
+inline void SampleBase::stopAction(const QStringList& args)
+{
+    try
+    {
+        stopImpl(args);
     }
     catch (const nzmqt::ZMQException& ex)
     {

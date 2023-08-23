@@ -52,9 +52,9 @@ class Publisher : public SampleBase
     typedef SampleBase super;
 
 public:
-    explicit Publisher(ZMQContext& context, const QString& address, const QString& topic, const QString& message, const int& frequency, const bool& useHex, QObject* parent = 0)
+    explicit Publisher(ZMQContext& context, const QString& address, const int& frequency, const bool& useHex, QObject* parent = 0)
         : super(parent)
-        , address_(address), topic_(topic), message_(message), frequency_(frequency), useHex_(useHex)
+        , address_(address), frequency_(frequency), useHex_(useHex)
         , socket_(0)
     {
         socket_ = context.createSocket(ZMQSocket::TYP_PUB, this);
@@ -65,10 +65,27 @@ signals:
     void messageSent(const QString& timeStamp, const QList<QByteArray>& message);
 
 protected:
-    void startImpl()
+    void initialize()
     {
         socket_->bindTo(address_);
+    }
+
+    void startImpl(const QStringList& messages)
+    {
+        if (messages.isEmpty())
+        {
+            return;
+        }
+
+        topic_ = messages.first();
+        message_ = messages.at(1);
+        
         QTimer::singleShot(100, this, SLOT(sendMessage()));
+    }
+
+    void stopImpl(const QStringList& messages)
+    {
+        frequency_ = 0;
     }
 
 protected slots:
@@ -109,10 +126,11 @@ protected slots:
         {
             QTimer::singleShot(1000 / frequency_, this, SLOT(sendMessage()));
         }
-        else
-        {
-            emit finished();
-        }
+        //else
+        //{
+            // TODO: Do not emit finished() here, but when the user clicks on the "Stop" button.
+            //emit finished();
+        //}
     }
 
 private:

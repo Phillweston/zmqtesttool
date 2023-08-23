@@ -50,9 +50,9 @@ class Subscriber : public SampleBase
     typedef SampleBase super;
 
 public:
-    explicit Subscriber(ZMQContext& context, const QString& address, const QString& topic, const bool& useHex, QObject *parent = 0)
+    explicit Subscriber(ZMQContext& context, const QString& address, const bool& useHex, QObject *parent = 0)
         : super(parent)
-        , address_(address), topic_(topic), useHex_(useHex)
+        , address_(address), useHex_(useHex)
         , socket_(0)
     {
         socket_ = context.createSocket(ZMQSocket::TYP_SUB, this);
@@ -64,10 +64,35 @@ signals:
     void messageReceived(const QString& timeStamp, const QList<QByteArray>& message);
 
 protected:
-    void startImpl()
+    void initialize()
     {
-        socket_->subscribeTo(topic_);
         socket_->connectTo(address_);
+    }
+
+    void startImpl(const QStringList& topics)
+    {
+        if (topics.isEmpty())
+        {
+            return;
+        }
+        
+        for (auto& topic : topics)
+        {
+            socket_->subscribeTo(topic);
+        }
+    }
+
+    void stopImpl(const QStringList& topics)
+    {
+        if (topics.isEmpty())
+        {
+            return;
+        }
+        
+        for (auto& topic : topics)
+        {
+            socket_->unsubscribeFrom(topic);
+        }
     }
 
 protected slots:

@@ -14,6 +14,8 @@
 #include <QtTest/QSignalSpy>
 #include <QtTest/QtTest>
 #include "SampleBase.hpp"
+#include "Subscriber.hpp"
+#include "Publisher.hpp"
 #include "aboutdialog.h"
 
 namespace Ui {
@@ -48,7 +50,7 @@ private:
     Test Start: The context is started, followed by the publisher thread. A QTimer is used to stop the publisher after 6 seconds.
     Postconditions Check: After the test is finished, conditions are checked to verify the behavior of the publisher (e.g., number of pings sent, failures, etc.).
     */
-    void publish(QString ipAddress, int port, QString topic, QString message, int frequency, bool useHex = false);
+    void publishInit(QString ipAddress, int port, int frequency, bool useHex = false);
 
     /*
     Subscriber Context:
@@ -59,7 +61,7 @@ private:
     Test Start: The subscriber thread starts with a slight delay (500 ms) and is stopped after 6 seconds, similar to the publisher.
     Postconditions Check: After the test is finished, conditions are checked to verify the behavior of the subscriber (e.g., number of pings received, failures, etc.).
     */
-    void subscribe(QString ipAddress, int port, QString topic, bool useHex = false);
+    void subscribeInit(QString ipAddress, int port, bool useHex = false);
 
 private slots:
 
@@ -109,17 +111,6 @@ private slots:
     void on_buttonQuit_clicked();
 
     /**
-     * @brief Handles the click event of the "Publish Start" button.
-     *        It retrieves the IP address, port, topic, message, and frequency from the UI elements.
-     *        Validates the IP address, port, topic, and message.
-     *        Calls the publish function with the retrieved parameters.
-     *        Disables the "Publish Start" button and enables the "Publish Stop" button.
-     * @param None
-     * @return None
-     */
-    void on_buttonSend_clicked();
-
-    /**
      * @brief This function is called when the user clicks on the "Subscribe Start" button. It retrieves the IP address, port, and topic from the UI, validates them, and then calls the subscribe function to start the subscription.
      * @param None
      * @return None
@@ -136,8 +127,6 @@ private slots:
     void on_buttonClearAll_clicked();
 
     void on_buttonPublishClearAll_clicked();
-
-    void on_buttonRemoveTopic_clicked();
 
     /**
      * @brief Slot function that is called when the state of the "Loop" checkbox is changed.
@@ -166,6 +155,16 @@ private slots:
 
     void on_buttonAddTopic_clicked();
 
+    void on_buttonRemoveTopic_clicked();
+
+    void subscribeMessage(nzmqt::samples::pubsub::Subscriber*, const QStringList&);
+
+    void subscribeMessage(nzmqt::samples::pubsub::Subscriber*);
+
+    void unsubscribeMessage(nzmqt::samples::pubsub::Subscriber*);
+
+    void publishMessage(nzmqt::samples::pubsub::Publisher*);
+
 private:
     Ui::MainWindow *ui;
     AboutDialog aboutdlg;
@@ -179,7 +178,7 @@ private:
     QMutex bufferedReceiveMessagesMutex;
     QMutex bufferedLogMessagesMutex;
 
-    void startInit();
+    void initTable();
 
     /**
      * @brief Checks if the given string contains only alphanumeric characters.
