@@ -30,6 +30,11 @@ public:
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
+    /**
+     * @brief Logs a message to the buffered log messages.
+     * @param msg The message to be logged.
+     * @return None
+     */
     void logMessage(const QString &msg);
 
 protected:
@@ -72,8 +77,18 @@ private slots:
      */
     void showMessage();
 
+    /**
+     * @brief Enables the start and default buttons, and the host and port input fields, and shows a message in the status bar.
+     * @param None
+     * @return None
+     */
     void messageFinished();
 
+    /**
+     * @brief Handles log messages and displays them in a message box.
+     * @param type The type of the log message. 0 for information, 1 for error, and any other value for unknown error.
+     * @param message The log message to be displayed.
+     */
     void handleLogMessage(int type, const QString& message);
 
     /**
@@ -122,8 +137,18 @@ private slots:
      */
     void on_buttonStop_clicked();
 
+    /**
+     * @brief Clears all messages from the text view and displays a status message.
+     * @param None
+     * @return None
+     */
     void on_buttonClearAll_clicked();
 
+    /**
+     * @brief Clears all input fields in the publish section of the UI.
+     * @param None
+     * @return None
+     */
     void on_buttonPublishClearAll_clicked();
 
     /**
@@ -151,16 +176,58 @@ private slots:
 
     void on_actionQuit_triggered();
 
+    /**
+     * @brief Adds a new topic to the table view.
+     * @param None
+     * @return None
+     * @note Both of this slot function and subscribeMessage() slot function
+     *       are connected with the same signal, so they will be called simultaneously.
+     */
     void on_buttonAddTopic_clicked();
 
+    /**
+     * @brief Removes a topic from the table view.
+     * @param None
+     * @return None
+     * @note Both of this slot function and unsubscribeMessage() slot function
+     *       are connected with the same signal, so they will be called simultaneously.
+     */
     void on_buttonRemoveTopic_clicked();
 
+    /**
+     * @brief Subscribes to the given topics using the provided subscriber object.
+     * @param subscriber A pointer to the subscriber object.
+     * @param topics A QStringList containing the topics to subscribe to.
+     */
     void subscribeMessage(nzmqt::samples::pubsub::Subscriber*, const QStringList&);
 
+    /**
+     * @brief Subscribes to a new topic and starts the subscriber action.
+     * @param subscriber A pointer to the subscriber object.
+     * @return void
+     * @note Both of this slot function and on_buttonAddTopic_clicked() slot function
+     *       are connected with the same signal, so they will be called simultaneously.
+     */
     void subscribeMessage(nzmqt::samples::pubsub::Subscriber*);
 
+    /**
+     * @brief Unsubscribes a message from a subscriber.
+     * @param subscriber A pointer to the subscriber object.
+     * @return void
+     * @note Both of this slot function and on_buttonRemoveTopic_clicked() slot function
+     *       are connected with the same signal, so they will be called simultaneously.
+     */
     void unsubscribeMessage(nzmqt::samples::pubsub::Subscriber*);
 
+    /**
+     * @brief Publishes a message to a given publisher.
+     * @param publisher A pointer to the publisher object.
+     * @return void
+     * @note This function retrieves the topic and contents of the message from the UI view. 
+     *       If either of them is invalid, an error message is displayed and the function returns. 
+     *       Otherwise, the topic and contents are added to a QStringList and passed to the publisher's startAction() function. 
+     *       Finally, a status message is displayed on the UI view.
+     */
     void publishMessage(nzmqt::samples::pubsub::Publisher*);
 
 private:

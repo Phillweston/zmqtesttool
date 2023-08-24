@@ -74,6 +74,11 @@ void MainWindow::showMessage()
 }
 
 
+/**
+ * @brief Logs a message to the buffered log messages.
+ * @param msg The message to be logged.
+ * @return None
+ */
 void MainWindow::logMessage(const QString &msg)
 {
     QMutexLocker locker(&bufferedLogMessagesMutex);
@@ -264,6 +269,11 @@ void MainWindow::handleLogMessage(int type, const QString& message)
 }
 
 
+/**
+ * @brief Clears all messages from the text view and displays a status message.
+ * @param None
+ * @return None
+ */
 void MainWindow::on_buttonClearAll_clicked()
 {
     ui->textView->clear();
@@ -492,7 +502,7 @@ void MainWindow::unsubscribeMessage(samples::pubsub::Subscriber* subscriber)
  */
 void MainWindow::on_buttonRemoveTopic_clicked()
 {
-    // TODO: Write a function to remove topic from table
+    // Remove topic from table
     QStandardItemModel *itemModel = qobject_cast<QStandardItemModel*>(ui->tableViewTopics->model());
     
     // Get the current index from the table view
@@ -503,6 +513,11 @@ void MainWindow::on_buttonRemoveTopic_clicked()
 }
 
 
+/**
+ * @brief Enables the start and default buttons, and the host and port input fields, and shows a message in the status bar.
+ * @param None
+ * @return None
+ */
 void MainWindow::messageFinished()
 {
     ui->buttonStop->setEnabled(false);
