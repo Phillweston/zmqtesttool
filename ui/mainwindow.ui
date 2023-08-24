@@ -461,7 +461,7 @@ QGroupBox::title {
           </widget>
          </item>
          <item>
-          <widget class="QSpinBox" name="publishUpdateFrequency">
+          <widget class="QSpinBox" name="publishFrequency">
            <property name="minimum">
             <number>1</number>
            </property>

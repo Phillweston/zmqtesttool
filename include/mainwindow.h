@@ -181,7 +181,7 @@ private slots:
      * @param None
      * @return None
      * @note Both of this slot function and subscribeMessage() slot function
-     *       are connected with the same signal, so they will be called simultaneously.
+     *       are connected with the same signal, so they will be called with the order of connection.
      */
     void on_buttonAddTopic_clicked();
 
@@ -190,7 +190,7 @@ private slots:
      * @param None
      * @return None
      * @note Both of this slot function and unsubscribeMessage() slot function
-     *       are connected with the same signal, so they will be called simultaneously.
+     *       are connected with the same signal, so they will be called with the order of connection.
      */
     void on_buttonRemoveTopic_clicked();
 
@@ -206,7 +206,7 @@ private slots:
      * @param subscriber A pointer to the subscriber object.
      * @return void
      * @note Both of this slot function and on_buttonAddTopic_clicked() slot function
-     *       are connected with the same signal, so they will be called simultaneously.
+     *       are connected with the same signal, so they will be called with the order of connection.
      */
     void subscribeMessage(nzmqt::samples::pubsub::Subscriber*);
 
@@ -215,20 +215,20 @@ private slots:
      * @param subscriber A pointer to the subscriber object.
      * @return void
      * @note Both of this slot function and on_buttonRemoveTopic_clicked() slot function
-     *       are connected with the same signal, so they will be called simultaneously.
+     *       are connected with the same signal, so they will be called with the order of connection.
      */
     void unsubscribeMessage(nzmqt::samples::pubsub::Subscriber*);
 
     /**
      * @brief Publishes a message to a given publisher.
      * @param publisher A pointer to the publisher object.
-     * @return void
+     * @return bool True if the message was published successfully, false otherwise.
      * @note This function retrieves the topic and contents of the message from the UI view. 
      *       If either of them is invalid, an error message is displayed and the function returns. 
      *       Otherwise, the topic and contents are added to a QStringList and passed to the publisher's startAction() function. 
      *       Finally, a status message is displayed on the UI view.
      */
-    void publishMessage(nzmqt::samples::pubsub::Publisher*);
+    bool publishMessage(nzmqt::samples::pubsub::Publisher*);
 
 private:
     Ui::MainWindow *ui;
@@ -242,7 +242,11 @@ private:
     QMutex bufferedSendMessagesMutex;
     QMutex bufferedReceiveMessagesMutex;
     QMutex bufferedLogMessagesMutex;
+    bool subscribeFlag = false; // Use this flag to enable subscribe from the second triggered slot function
+    QMutex slotMutex;
 
+    bool isSendMode = true; // starting state is Send mode
+    
     /**
      * @brief Initializes the table view for subscribing to topics.
      * @param None

@@ -25,10 +25,11 @@ MainWindow::MainWindow(QWidget *parent) :
 
     initTable();
 
+    ui->tableViewTopics->setSelectionBehavior(QAbstractItemView::SelectRows);
     ui->buttonSend->setEnabled(false);
     ui->buttonStop->setEnabled(false);
     ui->buttonStart->setEnabled(true);
-    ui->publishUpdateFrequency->setEnabled(false);
+    ui->publishFrequency->setEnabled(false);
     ui->textView->setReadOnly(true);
     ui->decDisplay->setChecked(true);
     ui->checkBoxLoop->setChecked(false);
@@ -120,7 +121,6 @@ Postconditions Check: After the test is finished, conditions are checked to veri
 */
 void MainWindow::publishInit(QString ipAddress, int port, bool useHex)
 {
-    bool isSendMode = true;  // starting state is Send mode
     try
     {
         QSharedPointer<ZMQContext> context(nzmqt::createDefaultContext());
@@ -139,21 +139,20 @@ void MainWindow::publishInit(QString ipAddress, int port, bool useHex)
         // we need to utilize the QMetaObject::Connection object returned by the connect function to be able to disconnect it.
         // Connect your button once and use the state to decide the action
         // We need to capture the isSendMode variable by reference in the lambda so that changes to its value persist across multiple invocations of the lambda.
-        QMetaObject::Connection publishMessageConnection = connect(ui->buttonSend, &QPushButton::clicked, this, [this, publisher, &isSendMode]() {
+        QMetaObject::Connection publishMessageConnection = connect(ui->buttonSend, &QPushButton::clicked, this, [this, publisher]() {
             if (isSendMode) 
-            {    
-                // TODO:
+            {
                 int frequency = 0;
                 if (ui->checkBoxLoop->isChecked())
                 {
-                    frequency = ui->spinBoxFrequency->value();
+                    frequency = ui->publishFrequency->value();
                 }
                 publisher->setFrequency(frequency);
 
                 // This block handles the "Send" behavior
-                publishMessage(publisher);
+                bool res = publishMessage(publisher);
 
-                if (frequency != 0) 
+                if (frequency != 0 && res) 
                 {
                     ui->buttonSend->setText(tr("Stop"));
                     ui->buttonSend->setIcon(QIcon(":/images/stop.png"));
@@ -209,13 +208,13 @@ void MainWindow::publishInit(QString ipAddress, int port, bool useHex)
 /**
  * @brief Publishes a message to a given publisher.
  * @param publisher A pointer to the publisher object.
- * @return void
+ * @return bool True if the message was published successfully, false otherwise.
  * @note This function retrieves the topic and contents of the message from the UI view. 
  *       If either of them is invalid, an error message is displayed and the function returns. 
  *       Otherwise, the topic and contents are added to a QStringList and passed to the publisher's startAction() function. 
  *       Finally, a status message is displayed on the UI view.
  */
-void MainWindow::publishMessage(samples::pubsub::Publisher* publisher)
+bool MainWindow::publishMessage(samples::pubsub::Publisher* publisher)
 {
     // Get the topic from the ui view
     QString topic = ui->lineEditPublishTopic->text();
@@ -223,7 +222,7 @@ void MainWindow::publishMessage(samples::pubsub::Publisher* publisher)
     {
         QMessageBox::critical(this, tr("Error"), tr("Please enter a valid topic"));
         ui->statusBar->showMessage(tr("Please enter a valid topic"));
-        return;
+        return false;
     }
 
     QString contents = ui->lineEditPublishMessage->text();
@@ -231,7 +230,7 @@ void MainWindow::publishMessage(samples::pubsub::Publisher* publisher)
     {
         QMessageBox::critical(this, tr("Error"), tr("Please enter a valid message"));
         ui->statusBar->showMessage(tr("Please enter a valid message"));
-        return;
+        return false;
     }
 
     QStringList messages;
@@ -241,6 +240,7 @@ void MainWindow::publishMessage(samples::pubsub::Publisher* publisher)
     publisher->startAction(messages);
 
     ui->statusBar->showMessage(tr("Sending message ..."));
+    return true;
 }
 
 
@@ -416,24 +416,22 @@ void MainWindow::subscribeMessage(samples::pubsub::Subscriber* subscriber, const
  * @param subscriber A pointer to the subscriber object.
  * @return void
  * @note Both of this slot function and on_buttonAddTopic_clicked() slot function
- *       are connected with the same signal, so they will be called simultaneously.
+ *       are connected with the same signal, so they will be called with the order of connection.
  */
 void MainWindow::subscribeMessage(samples::pubsub::Subscriber* subscriber)
 {
-    // Get the new topic from the line edit
-    QString newTopic = ui->lineEditSubscribeTopic->text();
-    if (!isValidString(newTopic))
-    {
-        QMessageBox::critical(this, tr("Error"), tr("Please enter a valid topic"));
-        ui->statusBar->showMessage(tr("Please enter a valid topic"));
+    QMutexLocker locker(&slotMutex);
+
+    if (!subscribeFlag)
         return;
-    }
+
+    QString newTopic = ui->lineEditSubscribeTopic->text();
 
     QStringList topics;
     topics.append(newTopic);
 
     subscriber->startAction(topics);
-
+    qDebug() << "Subscribe topic: " << newTopic;
     ui->statusBar->showMessage(tr("Topic added"));
 }
 
@@ -443,10 +441,12 @@ void MainWindow::subscribeMessage(samples::pubsub::Subscriber* subscriber)
  * @param None
  * @return None
  * @note Both of this slot function and subscribeMessage() slot function
- *       are connected with the same signal, so they will be called simultaneously.
+ *       are connected with the same signal, so they will be called with the order of connection.
  */
 void MainWindow::on_buttonAddTopic_clicked()
 {
+    QMutexLocker locker(&slotMutex);
+
     // Get the model from the table view
     QStandardItemModel *itemModel = qobject_cast<QStandardItemModel*>(ui->tableViewTopics->model());
 
@@ -454,7 +454,23 @@ void MainWindow::on_buttonAddTopic_clicked()
     QString newTopic = ui->lineEditSubscribeTopic->text();
     if (!isValidString(newTopic))
     {
+        QMessageBox::critical(this, tr("Error"), tr("Please enter a valid topic"));
+        ui->statusBar->showMessage(tr("Please enter a valid topic"));
+        subscribeFlag = false;
         return;
+    }
+
+    // Check for duplicates
+    for (int i = 0; i < itemModel->rowCount(); ++i) 
+    {
+        // Topic is in column 1
+        QString existingTopic = itemModel->item(i, 1)->text();
+        if (existingTopic == newTopic) 
+        {
+            QMessageBox::warning(this, tr("Duplicate Topic"), tr("The topic already exists in the table!"));
+            subscribeFlag = false;
+            return;
+        }
     }
 
     QList<QStandardItem *> items;
@@ -466,6 +482,8 @@ void MainWindow::on_buttonAddTopic_clicked()
 
     itemModel->appendRow(items);
     ui->tableViewTopics->setModel(itemModel);
+
+    subscribeFlag = true;
 }
 
 
@@ -474,21 +492,19 @@ void MainWindow::on_buttonAddTopic_clicked()
  * @param subscriber A pointer to the subscriber object.
  * @return void
  * @note Both of this slot function and on_buttonRemoveTopic_clicked() slot function
- *       are connected with the same signal, so they will be called simultaneously.
+ *       are connected with the same signal, so they will be called with the order of connection.
  */
 void MainWindow::unsubscribeMessage(samples::pubsub::Subscriber* subscriber)
-{   
-    // Get the current index from the table view
-    QModelIndex index = ui->tableViewTopics->currentIndex();
+{
+    QMutexLocker locker(&slotMutex);
 
-    // Grant the second string item from the selected row
-    QString newTopic = index.sibling(index.row(), 1).data(Qt::DisplayRole).toString();
+    QString newTopic = ui->lineEditSubscribeTopic->text();
 
     QStringList topics;
     topics.append(newTopic);
 
     subscriber->stopAction(topics);
-
+    qDebug() << "Unsubscribe topic: " << newTopic;
     ui->statusBar->showMessage(tr("Topic removed"));
 }
 
@@ -498,15 +514,22 @@ void MainWindow::unsubscribeMessage(samples::pubsub::Subscriber* subscriber)
  * @param None
  * @return None
  * @note Both of this slot function and unsubscribeMessage() slot function
- *       are connected with the same signal, so they will be called simultaneously.
+ *       are connected with the same signal, so they will be called with the order of connection.
  */
 void MainWindow::on_buttonRemoveTopic_clicked()
 {
+    QMutexLocker locker(&slotMutex);
+
     // Remove topic from table
     QStandardItemModel *itemModel = qobject_cast<QStandardItemModel*>(ui->tableViewTopics->model());
     
     // Get the current index from the table view
     QModelIndex index = ui->tableViewTopics->currentIndex();
+
+    // Grant the second string item from the selected row
+    QString newTopic = index.sibling(index.row(), 1).data(Qt::DisplayRole).toString();
+
+    ui->lineEditSubscribeTopic->setText(newTopic);
 
     // Remove the row from the model
     itemModel->removeRow(index.row());
@@ -710,11 +733,11 @@ void MainWindow::on_checkBoxLoop_stateChanged(int arg1)
 {
     if (arg1 == Qt::Checked)
     {
-        ui->publishUpdateFrequency->setEnabled(true);
+        ui->publishFrequency->setEnabled(true);
     }
     else
     {
-        ui->publishUpdateFrequency->setEnabled(false);
+        ui->publishFrequency->setEnabled(false);
     }
 }
 
