@@ -50,7 +50,7 @@ private:
     Test Start: The context is started, followed by the publisher thread. A QTimer is used to stop the publisher after 6 seconds.
     Postconditions Check: After the test is finished, conditions are checked to verify the behavior of the publisher (e.g., number of pings sent, failures, etc.).
     */
-    void publishInit(QString ipAddress, int port, int frequency, bool useHex = false);
+    void publishInit(QString ipAddress, int port, bool useHex = false);
 
     /*
     Subscriber Context:
@@ -73,8 +73,6 @@ private slots:
     void showMessage();
 
     void messageFinished();
-    
-    void messageSendFinished();
 
     void handleLogMessage(int type, const QString& message);
 
@@ -178,6 +176,11 @@ private:
     QMutex bufferedReceiveMessagesMutex;
     QMutex bufferedLogMessagesMutex;
 
+    /**
+     * @brief Initializes the table view for subscribing to topics.
+     * @param None
+     * @return None
+     */
     void initTable();
 
     /**

@@ -104,6 +104,34 @@
         </property>
        </widget>
       </item>
+      <item>
+       <widget class="QPushButton" name="buttonStop">
+        <property name="statusTip">
+         <string>Stop Publishing Message</string>
+        </property>
+        <property name="text">
+         <string>Disconnect</string>
+        </property>
+        <property name="icon">
+         <iconset resource="../resources/images.qrc">
+          <normaloff>:/images/stop.png</normaloff>:/images/stop.png</iconset>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="buttonStart">
+        <property name="statusTip">
+         <string>Start Publishing Message</string>
+        </property>
+        <property name="text">
+         <string>Connect</string>
+        </property>
+        <property name="icon">
+         <iconset resource="../resources/images.qrc">
+          <normaloff>:/images/open.png</normaloff>:/images/open.png</iconset>
+        </property>
+       </widget>
+      </item>
      </layout>
     </item>
     <item>
@@ -142,7 +170,7 @@ QGroupBox::title {
             </size>
            </property>
            <property name="title">
-            <string>Subscribe Topic List</string>
+            <string>Subscribe Topic Information</string>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_6">
             <item>
@@ -257,6 +285,30 @@ QGroupBox::title {
               </item>
              </layout>
             </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_5">
+              <item>
+               <widget class="QLabel" name="labelPublishMessageCount">
+                <property name="text">
+                 <string>Publish Message Count:</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLCDNumber" name="lcdNumberPublish"/>
+              </item>
+              <item>
+               <widget class="QLabel" name="labelSubscribeMessageCount">
+                <property name="text">
+                 <string>Subscribe Message Count:</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLCDNumber" name="lcdNumberSubscribe"/>
+              </item>
+             </layout>
+            </item>
            </layout>
           </widget>
          </item>
@@ -350,10 +402,29 @@ QGroupBox::title {
     </item>
     <item>
      <widget class="QGroupBox" name="groupBox_3">
-      <property name="title">
-       <string>Message</string>
+      <property name="styleSheet">
+       <string notr="true">QGroupBox {
+    background-color: qlineargradient(
+        x1: 0, y1: 0,
+        x2: 0, y2: 1,
+        stop: 0 #E0E0E0,
+        stop: 1 #FFFFFF
+    );
+
+    border: 2px solid gray;
+    border-radius: 5px;
+    margin-top: 5ex;
+}
+
+QGroupBox::title {
+    subcontrol-origin: margin;
+    padding: 5px 0px;
+}</string>
       </property>
-      <layout class="QVBoxLayout" name="verticalLayout_3">
+      <property name="title">
+       <string>Public Message</string>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout">
        <item>
         <layout class="QHBoxLayout" name="horizontalLayout_6">
          <item>
@@ -379,32 +450,6 @@ QGroupBox::title {
            </property>
            <property name="placeholderText">
             <string>Input Publish Topic Here</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLabel" name="labelPublishMessage">
-           <property name="text">
-            <string>Publish Message:</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLineEdit" name="lineEditPublishMessage">
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>0</height>
-            </size>
-           </property>
-           <property name="statusTip">
-            <string>Input Publish Message Here</string>
-           </property>
-           <property name="text">
-            <string/>
-           </property>
-           <property name="placeholderText">
-            <string>Input Publish Message Here</string>
            </property>
           </widget>
          </item>
@@ -436,6 +481,20 @@ QGroupBox::title {
           </widget>
          </item>
          <item>
+          <widget class="QPushButton" name="buttonPublishClearAll">
+           <property name="statusTip">
+            <string>Clear All Information Input</string>
+           </property>
+           <property name="text">
+            <string>Clear All</string>
+           </property>
+           <property name="icon">
+            <iconset resource="../resources/images.qrc">
+             <normaloff>:/images/edit-clear.png</normaloff>:/images/edit-clear.png</iconset>
+           </property>
+          </widget>
+         </item>
+         <item>
           <widget class="QPushButton" name="buttonSend">
            <property name="statusTip">
             <string>Start Publishing Message</string>
@@ -452,66 +511,30 @@ QGroupBox::title {
         </layout>
        </item>
        <item>
-        <layout class="QHBoxLayout" name="horizontalLayout_5">
+        <layout class="QHBoxLayout" name="horizontalLayout_10">
          <item>
-          <widget class="QLabel" name="labelPublishMessageCount">
+          <widget class="QLabel" name="labelPublishMessage">
            <property name="text">
-            <string>Publish Message Count:</string>
+            <string>Publish Message:</string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QLCDNumber" name="lcdNumberPublish"/>
-         </item>
-         <item>
-          <widget class="QLabel" name="labelSubscribeMessageCount">
-           <property name="text">
-            <string>Subscribe Message Count:</string>
+          <widget class="QLineEdit" name="lineEditPublishMessage">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>0</height>
+            </size>
            </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLCDNumber" name="lcdNumberSubscribe"/>
-         </item>
-         <item>
-          <widget class="QPushButton" name="buttonPublishClearAll">
            <property name="statusTip">
-            <string>Clear All Information Input</string>
+            <string>Input Publish Message Here</string>
            </property>
            <property name="text">
-            <string>Clear All</string>
+            <string/>
            </property>
-           <property name="icon">
-            <iconset resource="../resources/images.qrc">
-             <normaloff>:/images/edit-clear.png</normaloff>:/images/edit-clear.png</iconset>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QPushButton" name="buttonStop">
-           <property name="statusTip">
-            <string>Stop Publishing Message</string>
-           </property>
-           <property name="text">
-            <string>Stop</string>
-           </property>
-           <property name="icon">
-            <iconset resource="../resources/images.qrc">
-             <normaloff>:/images/stop.png</normaloff>:/images/stop.png</iconset>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QPushButton" name="buttonStart">
-           <property name="statusTip">
-            <string>Start Publishing Message</string>
-           </property>
-           <property name="text">
-            <string>Start</string>
-           </property>
-           <property name="icon">
-            <iconset resource="../resources/images.qrc">
-             <normaloff>:/images/open.png</normaloff>:/images/open.png</iconset>
+           <property name="placeholderText">
+            <string>Input Publish Message Here</string>
            </property>
           </widget>
          </item>

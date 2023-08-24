@@ -45,6 +45,11 @@ MainWindow::~MainWindow()
 }
 
 
+/**
+ * @brief Initializes the table view for subscribing to topics.
+ * @param None
+ * @return None
+ */
 void MainWindow::initTable()
 {
     QStandardItemModel *subscribeModel = new QStandardItemModel();
@@ -108,8 +113,9 @@ Execution Thread: The publisher's functionality is set to run in a separate thre
 Test Start: The context is started, followed by the publisher thread. A QTimer is used to stop the publisher after 6 seconds.
 Postconditions Check: After the test is finished, conditions are checked to verify the behavior of the publisher (e.g., number of pings sent, failures, etc.).
 */
-void MainWindow::publishInit(QString ipAddress, int port, int frequency, bool useHex)
+void MainWindow::publishInit(QString ipAddress, int port, bool useHex)
 {
+    bool isSendMode = true;  // starting state is Send mode
     try
     {
         QSharedPointer<ZMQContext> context(nzmqt::createDefaultContext());
@@ -118,22 +124,46 @@ void MainWindow::publishInit(QString ipAddress, int port, int frequency, bool us
         QString connectionString = QString("tcp://%1:%2").arg(ipAddress).arg(port);
 
         // Create publisher with the connection string
-        samples::pubsub::Publisher* publisher = new samples::pubsub::Publisher(*context, connectionString, frequency, useHex, this);
+        samples::pubsub::Publisher* publisher = new samples::pubsub::Publisher(*context, connectionString, useHex, this);
         connect(publisher, SIGNAL(messageSent(const QString&, const QList<QByteArray>&)), SLOT(messageSent(const QString&, const QList<QByteArray>&)));
-        connect(publisher, SIGNAL(finished()), SLOT(messageSendFinished()));
+        connect(publisher, SIGNAL(finished()), SLOT(messageFinished()));
         connect(publisher, SIGNAL(signal_log(int, const QString&)), SLOT(handleLogMessage(int, const QString&)));
         
-        // Start subscriber after user clicked the add button (startAction)
+        // Start subscriber after user clicked the add button (startAction), and stop after user clicked the stop button when the frequency is not equivalent to 0 (stopAction)
         // Note: Since we don't have a direct reference to the lambda to use in a disconnect call,
         // we need to utilize the QMetaObject::Connection object returned by the connect function to be able to disconnect it.
-        QMetaObject::Connection publishMessageConnection = connect(ui->buttonSend, &QPushButton::clicked, this, [this, publisher, frequency]() {
-            publishMessage(publisher);
-            
-            if (frequency != 0)
-                ui->buttonSend->setEnabled(false);
-        });
+        // Connect your button once and use the state to decide the action
+        // We need to capture the isSendMode variable by reference in the lambda so that changes to its value persist across multiple invocations of the lambda.
+        QMetaObject::Connection publishMessageConnection = connect(ui->buttonSend, &QPushButton::clicked, this, [this, publisher, &isSendMode]() {
+            if (isSendMode) 
+            {    
+                // TODO:
+                int frequency = 0;
+                if (ui->checkBoxLoop->isChecked())
+                {
+                    frequency = ui->spinBoxFrequency->value();
+                }
+                publisher->setFrequency(frequency);
 
-        // TODO: Stop subscribing after user clicked the stop button (stopAction)
+                // This block handles the "Send" behavior
+                publishMessage(publisher);
+
+                if (frequency != 0) 
+                {
+                    ui->buttonSend->setText(tr("Stop"));
+                    ui->buttonSend->setIcon(QIcon(":/images/stop.png"));
+                    isSendMode = false;  // Switch to "Stop" mode
+                }
+            }
+            else
+            {
+                // This block handles the "Stop" behavior (stopAction)
+                publisher->stopAction();
+                ui->buttonSend->setText(tr("Send"));
+                ui->buttonSend->setIcon(QIcon(":/images/send.png"));
+                isSendMode = true;  // Switch back to "Send" mode
+            }
+        });
         
         // Stop publishing after user clicked the stop button
         connect(ui->buttonStop, &QPushButton::clicked, publisher, &samples::pubsub::Publisher::stop);
@@ -253,10 +283,13 @@ void MainWindow::on_buttonStop_clicked()
     ui->buttonSend->setEnabled(false);
     ui->buttonStop->setEnabled(false);
     ui->buttonStart->setEnabled(true);
-
+    ui->buttonDefault->setEnabled(true);
     ui->lineEditHost->setEnabled(true);
     ui->spinBoxPortPublish->setEnabled(true);
     ui->spinBoxPortSubscribe->setEnabled(true);
+    
+    ui->buttonSend->setText(tr("Send"));
+    ui->buttonSend->setIcon(QIcon(":/images/send.png"));
 
     ui->statusBar->showMessage(tr("Stopped"));
 }
@@ -470,18 +503,15 @@ void MainWindow::on_buttonRemoveTopic_clicked()
 }
 
 
-void MainWindow::messageSendFinished()
-{
-    ui->buttonSend->setEnabled(true);
-    ui->statusBar->showMessage(tr("Message Sent"));
-}
-
-
 void MainWindow::messageFinished()
 {
     ui->buttonStop->setEnabled(false);
     ui->buttonStart->setEnabled(true);
-    ui->statusBar->showMessage(tr("Message Stopped"));
+    ui->buttonDefault->setEnabled(true);
+    ui->lineEditHost->setEnabled(true);
+    ui->spinBoxPortPublish->setEnabled(true);
+    ui->spinBoxPortSubscribe->setEnabled(true);
+    ui->statusBar->showMessage(tr("Message Finished"));
 }
 
 
@@ -604,12 +634,6 @@ void MainWindow::on_buttonStart_clicked()
 
     bool useHex = false;
 
-    int frequency = 0;
-    if (ui->checkBoxLoop->isChecked())
-    {
-        frequency = ui->spinBoxFrequency->value();
-    }
-
     if (!isValidIPv4(ipAddress))
     {
         QMessageBox::critical(this, tr("Error"), tr("Please enter a valid IPv4 address"));
@@ -632,6 +656,7 @@ void MainWindow::on_buttonStart_clicked()
     ui->buttonSend->setEnabled(true);
     ui->buttonStart->setEnabled(false);
     ui->buttonStop->setEnabled(true);
+    ui->buttonDefault->setEnabled(false);
     ui->lcdNumberSubscribe->display(0);
     ui->lcdNumberPublish->display(0);
 
@@ -642,7 +667,7 @@ void MainWindow::on_buttonStart_clicked()
     ui->statusBar->showMessage(tr("Started ..."));
 
     subscribeInit(ipAddress, port, useHex);
-    publishInit(ipAddress, port, frequency, useHex);
+    publishInit(ipAddress, port, useHex);
 }
 
 
@@ -654,7 +679,7 @@ void MainWindow::on_buttonStart_clicked()
 void MainWindow::on_buttonPublishClearAll_clicked()
 {
     ui->textView->clear();
-    ui->lineEditSubscribeTopic->clear();
+    ui->lineEditPublishTopic->clear();
     ui->lineEditPublishMessage->clear();
     ui->statusBar->showMessage(tr("Information cleared"));
 }

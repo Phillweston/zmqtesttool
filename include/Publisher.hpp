@@ -52,13 +52,18 @@ class Publisher : public SampleBase
     typedef SampleBase super;
 
 public:
-    explicit Publisher(ZMQContext& context, const QString& address, const int& frequency, const bool& useHex, QObject* parent = 0)
+    explicit Publisher(ZMQContext& context, const QString& address, const bool& useHex, QObject* parent = 0)
         : super(parent)
-        , address_(address), frequency_(frequency), useHex_(useHex)
+        , address_(address), frequency_(0), useHex_(useHex)
         , socket_(0)
     {
         socket_ = context.createSocket(ZMQSocket::TYP_PUB, this);
         socket_->setObjectName("Publisher.Socket.socket(PUB)");
+    }
+
+    void setFrequency(int frequency)
+    {
+        frequency_ = frequency;
     }
 
 signals:

@@ -51,7 +51,7 @@ public:
     virtual ~SampleBase() {}
 
     void startAction(const QStringList& args);
-    void stopAction(const QStringList& args);
+    void stopAction(const QStringList& args = QStringList());
 
 signals:
     void finished();
@@ -94,6 +94,7 @@ inline void SampleBase::start()
 {
     try
     {
+        qDebug() << Q_FUNC_INFO << "Info: Starting";
         initialize();
     }
     catch (const nzmqt::ZMQException& ex)
@@ -110,6 +111,7 @@ inline void SampleBase::startAction(const QStringList& args)
 {
     try
     {
+        qDebug() << Q_FUNC_INFO << "Info: Starting Action";
         startImpl(args);
     }
     catch (const nzmqt::ZMQException& ex)
@@ -126,6 +128,7 @@ inline void SampleBase::stopAction(const QStringList& args)
 {
     try
     {
+        qDebug() << Q_FUNC_INFO << "Info: Stopping Action";
         stopImpl(args);
     }
     catch (const nzmqt::ZMQException& ex)
