@@ -104,22 +104,22 @@ protected slots:
         msg += message_.toLocal8Bit();
         QString currentTime = getCurrentTime();
 
-        if (useHex_)
-        {
-            hexMsg.append(msg.at(0));
-            if (msg.size() > 1)  // Ensure there are at least two elements
-            {
-                for (int i = 1; i < msg.size(); ++i)
-                {
-                    hexMsg.append(msg.at(i).toHex());
-                }
-            }
-            socket_->sendMessage(hexMsg);
+        // if (useHex_)
+        // {
+        //     hexMsg.append(msg.at(0));
+        //     if (msg.size() > 1)  // Ensure there are at least two elements
+        //     {
+        //         for (int i = 1; i < msg.size(); ++i)
+        //         {
+        //             hexMsg.append(msg.at(i).toHex());
+        //         }
+        //     }
+        //     socket_->sendMessage(hexMsg);
 
-            qDebug() << "Publisher> " << hexMsg << ", Timestamp: " << currentTime;
-            emit messageSent(currentTime, hexMsg);
-        }
-        else
+        //     qDebug() << "Publisher> " << hexMsg << ", Timestamp: " << currentTime;
+        //     emit messageSent(currentTime, hexMsg);
+        // }
+        // else
         {
             socket_->sendMessage(msg);
 

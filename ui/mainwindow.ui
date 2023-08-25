@@ -232,6 +232,26 @@ QGroupBox::title {
             <item>
              <layout class="QHBoxLayout" name="horizontalLayout_7">
               <item>
+               <widget class="QLabel" name="labelMaxItem">
+                <property name="text">
+                 <string>Max Storage Items:</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QSpinBox" name="spinBoxMaxItem">
+                <property name="minimum">
+                 <number>1</number>
+                </property>
+                <property name="maximum">
+                 <number>10000</number>
+                </property>
+                <property name="value">
+                 <number>1000</number>
+                </property>
+               </widget>
+              </item>
+              <item>
                <widget class="QLabel" name="labelUpdateFrequency">
                 <property name="text">
                  <string>Update Frequency (Hz):</string>

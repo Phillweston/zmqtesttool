@@ -14,12 +14,16 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    connect(this, &MainWindow::textClear, this, &MainWindow::clearText);
+
+    connect(this, &MainWindow::updateTextEditSignal, ui->textView, &QTextEdit::append);
+    connect(this, &MainWindow::showMessageSignal, ui->logMessage, &QTextEdit::append);
     // Create the timer but don't start it yet, it will be started once the buttonStart is clicked
     updateTimer = new QTimer(this);
     connect(updateTimer, &QTimer::timeout, this, &MainWindow::updateTextEdit);
 
     updateLogTimer = new QTimer(this);
-    // Starts the log stimer to update every 100ms
+    // Starts the log timer to update every 100ms
     updateLogTimer->start(100);
     connect(updateLogTimer, &QTimer::timeout, this, &MainWindow::showMessage);
 
@@ -67,11 +71,22 @@ void MainWindow::initTable()
 void MainWindow::showMessage()
 {
     QMutexLocker locker(&bufferedLogMessagesMutex);
-    if (!bufferedLogMessages.isEmpty())
-    {
-        ui->logMessage->append(bufferedLogMessages.join("\n"));
-        bufferedLogMessages.clear();
-    }
+    // Use concurrent to update the text edit for better performance
+    QtConcurrent::run([this]() {
+        // This is running in another thread        
+        if (!bufferedLogMessages.isEmpty())
+        {
+            emit showMessageSignal(bufferedLogMessages.join("\n"));
+            bufferedLogMessages.clear();
+        }
+    });
+}
+
+
+void MainWindow::clearText()
+{
+    ui->textView->clear();
+    ui->logMessage->clear();
 }
 
 
@@ -329,6 +344,10 @@ void MainWindow::subscribeInit(QString ipAddress, int port, bool useHex)
         connect(subscriber, SIGNAL(finished()), SLOT(messageFinished()));
         connect(subscriber, SIGNAL(signal_log(int, const QString&)), SLOT(handleLogMessage(int, const QString&)));
         
+        // Connect the radio buttons to the subscriber's setUseHex and setUseDec functions
+        connect(ui->hexDisplay, &QRadioButton::clicked, subscriber, &samples::pubsub::Subscriber::setUseHex);
+        connect(ui->decDisplay, &QRadioButton::clicked, subscriber, &samples::pubsub::Subscriber::setUseDec);
+
         // Subscribe topics from the table view if the table view is not empty
         QStringList topics;
         // Get the topic from the table view
@@ -475,7 +494,8 @@ void MainWindow::on_buttonAddTopic_clicked()
 
     QList<QStandardItem *> items;
     QStandardItem *checkboxItem = new QStandardItem();
-    checkboxItem->setCheckable(true);
+    // TODO: For some reason, the checkbox is not showing up
+    checkboxItem->setCheckable(false);
     checkboxItem->setCheckState(Qt::Checked);
     items.append(checkboxItem);
     items.append(new QStandardItem(newTopic));
@@ -564,18 +584,23 @@ void MainWindow::messageSent(const QString& timeStamp, const QList<QByteArray>& 
     ui->lcdNumberPublish->display(ui->lcdNumberPublish->value() + 1);
 
     QStringList localBuffer;
-    localBuffer.append("Publish:");
-    localBuffer.append("TimeStamp: ");
-    localBuffer.append(timeStamp);
-    localBuffer.append("Topic and Message: ");
+    localBuffer.append(timeStamp + QString(" Topic: ") + QString::fromUtf8(messageList.at(0)));
+    localBuffer.append("Message: ");
+
+    bool isFirst = true;
     foreach(const QByteArray& message, messageList)
     {
+        if (isFirst)
+        {
+            isFirst = false;
+            continue;
+        }
         localBuffer.append(QString::fromUtf8(message));
     }
     localBuffer.append("\n");
 
-    QMutexLocker locker(&bufferedSendMessagesMutex);
-    bufferedSendMessages.append(localBuffer.join("\n"));
+    QMutexLocker locker(&bufferedMessagesMutex);
+    bufferedMessages.append(localBuffer);
 }
 
 
@@ -588,22 +613,33 @@ void MainWindow::messageSent(const QString& timeStamp, const QList<QByteArray>& 
 void MainWindow::messageReceived(const QString& timeStamp, const QList<QByteArray>& messageList)
 {
     ui->lcdNumberSubscribe->display(ui->lcdNumberSubscribe->value() + 1);
+    
+    receiveCount++;
+    if (receiveCount == maxCount)
+    {
+        receiveCount = 0;
+        emit textClear();
+    }
 
     QStringList localBuffer;
-    localBuffer.append("Subscribe:");
-    localBuffer.append("TimeStamp: ");
-    localBuffer.append(timeStamp);
-    localBuffer.append("Topic and Message: ");
+    localBuffer.append(timeStamp + QString(" Topic: ") + QString::fromUtf8(messageList.at(0)));
+    localBuffer.append("Message: ");
 
+    bool isFirst = true;
     // Filter out the topic from the message list
     foreach(const QByteArray& message, messageList)
     {
+        if (isFirst)
+        {
+            isFirst = false;
+            continue;
+        }
         localBuffer.append(QString::fromUtf8(message));
     }
     localBuffer.append("\n");
 
-    QMutexLocker locker(&bufferedReceiveMessagesMutex);
-    bufferedReceiveMessages.append(localBuffer);
+    QMutexLocker locker(&bufferedMessagesMutex);
+    bufferedMessages.append(localBuffer);
 }
 
 
@@ -614,19 +650,16 @@ void MainWindow::messageReceived(const QString& timeStamp, const QList<QByteArra
  */
 void MainWindow::updateTextEdit()
 {
-    QMutexLocker locker(&bufferedSendMessagesMutex);
-    if (!bufferedSendMessages.isEmpty())
-    {
-        ui->textView->append(bufferedSendMessages.join("\n"));
-        bufferedSendMessages.clear();
-    }
-
-    QMutexLocker locker2(&bufferedReceiveMessagesMutex);
-    if (!bufferedReceiveMessages.isEmpty())
-    {
-        ui->textView->append(bufferedReceiveMessages.join("\n"));
-        bufferedReceiveMessages.clear();
-    }
+    QMutexLocker locker(&bufferedMessagesMutex);
+    // Use concurrent to update the text edit for better performance
+    QtConcurrent::run([this]() {
+        // This is running in another thread        
+        if (!bufferedMessages.isEmpty())
+        {
+            emit updateTextEditSignal(bufferedMessages.join("\n"));
+            bufferedMessages.clear();
+        }
+    });
 }
 
 
@@ -672,6 +705,7 @@ void MainWindow::on_buttonStart_clicked()
     QString localAddress = "*";
     int subPort = ui->spinBoxPortSubscribe->value();
     int pubPort = ui->spinBoxPortPublish->value();
+    maxCount = ui->spinBoxMaxItem->value();
 
     bool useHex = false;
 
@@ -681,11 +715,6 @@ void MainWindow::on_buttonStart_clicked()
         ui->statusBar->showMessage(tr("Please enter a valid IPv4 address"));
         return;
     }
-
-    if (ui->hexDisplay->isChecked())
-        useHex = true;
-    else
-        useHex = false;
 
     ui->buttonSend->setEnabled(true);
     ui->buttonStart->setEnabled(false);
@@ -789,7 +818,7 @@ bool MainWindow::isValidString(const QString &str)
     if (str.isEmpty())
         return false;
 
-    QRegExp regex("^[a-zA-Z0-9/]*$");
+    QRegExp regex("^[a-zA-Z0-9/#]*$");
     return regex.exactMatch(str);
 }
 

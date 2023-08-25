@@ -77,7 +77,7 @@ protected:
         {
             return;
         }
-        
+
         for (auto& topic : topics)
         {
             socket_->subscribeTo(topic);
@@ -90,37 +90,60 @@ protected:
         {
             return;
         }
-        
+
         for (auto& topic : topics)
         {
             socket_->unsubscribeFrom(topic);
         }
     }
 
+public slots:
+    void setUseHex()
+    {
+        useHex_ = true;
+    }
+
+    void setUseDec()
+    {
+        useHex_ = false;
+    }
+
 protected slots:
     void subMessageReceived(const QList<QByteArray>& msg)
     {
-        QList<QByteArray> hexMsg;
+        QList<QByteArray> plainMsg;
         QString currentTime = getCurrentTime();
 
+        bool isFirst = true;
         if (useHex_)
         {
-            hexMsg.append(msg.at(0));
-            if (msg.size() > 1)  // Ensure there are at least two elements
+            for (const QByteArray &data : msg)
             {
-                for (int i = 1; i < msg.size(); ++i)
+                if (isFirst)
                 {
-                    hexMsg.append(msg.at(i).toHex());
+                    plainMsg.append(data);
+                    isFirst = false;
+                    continue;
                 }
+                
+                QByteArray hexString;
+                for (int i = 0; i < data.size(); ++i)
+                {
+                    hexString.append(QByteArray::number(static_cast<uchar>(data[i]), 16).rightJustified(2, '0').toUpper());
+                    hexString.append(" ");
+                }
+                plainMsg.append(hexString);
             }
-            qDebug() << "Subscriber> " << hexMsg << ", Timestamp: " << currentTime;
-            emit messageReceived(currentTime, hexMsg);
         }
         else
         {
-            qDebug() << "Subscriber> " << msg << ", Timestamp: " << currentTime;
-            emit messageReceived(currentTime, msg);
+            for (const QByteArray &data : msg)
+            {
+                plainMsg.append(data);
+            }
         }
+        qDebug() << "Subscriber> " << plainMsg << ", Timestamp: " << currentTime;
+        emit messageReceived(currentTime, plainMsg);
     }
 
 private:

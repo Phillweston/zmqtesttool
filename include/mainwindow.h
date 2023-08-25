@@ -13,6 +13,7 @@
 #include <QStandardItemModel>
 #include <QtTest/QSignalSpy>
 #include <QtTest/QtTest>
+#include <QtConcurrent/QtConcurrent>
 #include "SampleBase.hpp"
 #include "Subscriber.hpp"
 #include "Publisher.hpp"
@@ -36,6 +37,13 @@ public:
      * @return None
      */
     void logMessage(const QString &msg);
+
+signals:
+    void textClear();
+
+    void updateTextEditSignal(QString str);
+
+    void showMessageSignal(QString str);
 
 protected:
     /**
@@ -69,6 +77,7 @@ private:
     void subscribeInit(QString ipAddress, int port, bool useHex = false);
 
 private slots:
+    void clearText();
 
     /**
      * @brief Show message on the text browser.
@@ -236,16 +245,16 @@ private:
 
     QTimer *updateTimer;
     QTimer *updateLogTimer;
-    QStringList bufferedSendMessages;
-    QStringList bufferedReceiveMessages;
+    QStringList bufferedMessages;
     QStringList bufferedLogMessages;
-    QMutex bufferedSendMessagesMutex;
-    QMutex bufferedReceiveMessagesMutex;
+    QMutex bufferedMessagesMutex;
     QMutex bufferedLogMessagesMutex;
     bool subscribeFlag = false; // Use this flag to enable subscribe from the second triggered slot function
     QMutex slotMutex;
 
     bool isSendMode = true; // starting state is Send mode
+    int receiveCount = 0;
+    int maxCount = 0;
     
     /**
      * @brief Initializes the table view for subscribing to topics.
