@@ -146,6 +146,35 @@ lvruitao
 - [x] 2023.08.21: Basic subscribe and publish function test.
 - [x] 2023.08.23: Preliminary version.
 
+## How to Create an Executable Package For a Qt Application
+
+1. Build your application in Release mode:
+    In Qt Creator, you can switch to Release mode by selecting "Release" from the drop-down menu in the lower-left corner of the screen, and then build your application by selecting "Build" -> "Rebuild All".
+
+2. Deploy your application:
+    After building your application in release mode, you'll need to make sure that your application can find the Qt libraries and plugins it needs to run. Qt provides a tool called `windeployqt` on Windows, `macdeployqt` on macOS and `linuxdeployqt` on Linux that automates the process of deploying an application.
+
+    Example code to build the executable package for the register-tool application:
+
+    Note: Recommend using "x64 Native Tools Command Prompt for VS 2022" when pre-building with Visual Studio 2022
+
+    ```shell
+    windeployqt .\zmqtesttool.exe --qmldir D:\Qt\5.15.2\msvc2019_64\qml
+    ```
+
+3. Copy the necessary files to the executable package directory:
+    After successfully running the above command, the executable package will be generated in the current directory, however the configuration files such as "flightsdk_authority.json" is not included in the executable package, so we need to manually copy these files to the executable package directory.
+
+    Third part libraries such as "libcrypto-1_1-x64.dll", "libssh2-1_11-x64.dll" and "libssl-1_1-x64.dll" are also not included in the executable package, so we need to manually copy these files in the bin folder to the executable package directory.
+
+## Install-Package Encapsulation
+
+To encapsulate the register-tool project into an install package, we can create an installer that packages all the necessary files and deploys them to the target system (win32 platform).
+
+Distribute this installer to users who can run it on their Windows machines to install this register-tool application.
+
+Inno Setup is a free installer for Windows programs. Download and install Inno Setup from the official website: https://www.jrsoftware.org/isinfo.php
+
 ## License
 
 MIT License

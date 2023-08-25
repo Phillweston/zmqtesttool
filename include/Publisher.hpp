@@ -96,8 +96,6 @@ protected:
 protected slots:
     void sendMessage()
     {
-        static quint64 counter = 0;
-
         QList<QByteArray> msg;
         QList<QByteArray> hexMsg;
         msg += topic_.toLocal8Bit();
@@ -131,11 +129,6 @@ protected slots:
         {
             QTimer::singleShot(1000 / frequency_, this, SLOT(sendMessage()));
         }
-        //else
-        //{
-            // TODO: Do not emit finished() here, but when the user clicks on the "Stop" button.
-            //emit finished();
-        //}
     }
 
 private:

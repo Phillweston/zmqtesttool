@@ -225,7 +225,7 @@ bool MainWindow::publishMessage(samples::pubsub::Publisher* publisher)
         return false;
     }
 
-    QString contents = ui->lineEditPublishMessage->text();
+    QString contents = ui->lineEditPublishMessage->toPlainText();
     if (!isValidString(contents))
     {
         QMessageBox::critical(this, tr("Error"), tr("Please enter a valid message"));
@@ -595,7 +595,7 @@ void MainWindow::messageReceived(const QString& timeStamp, const QList<QByteArra
     localBuffer.append(timeStamp);
     localBuffer.append("Topic and Message: ");
 
-    // TODO: Filter out the topic from the message list
+    // Filter out the topic from the message list
     foreach(const QByteArray& message, messageList)
     {
         localBuffer.append(QString::fromUtf8(message));

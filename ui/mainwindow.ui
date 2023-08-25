@@ -174,7 +174,7 @@ QGroupBox::title {
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_6">
             <item>
-             <widget class="QLabel" name="labelPublishTopic_4">
+             <widget class="QLabel" name="labelInformationView">
               <property name="text">
                <string>Topic Operation:</string>
               </property>
@@ -183,7 +183,7 @@ QGroupBox::title {
             <item>
              <widget class="QTabWidget" name="tabWidget">
               <property name="currentIndex">
-               <number>1</number>
+               <number>0</number>
               </property>
               <widget class="QWidget" name="tab">
                <attribute name="icon">
@@ -232,7 +232,7 @@ QGroupBox::title {
             <item>
              <layout class="QHBoxLayout" name="horizontalLayout_7">
               <item>
-               <widget class="QLabel" name="labelPublishFrequency_3">
+               <widget class="QLabel" name="labelUpdateFrequency">
                 <property name="text">
                  <string>Update Frequency (Hz):</string>
                 </property>
@@ -249,7 +249,7 @@ QGroupBox::title {
                </widget>
               </item>
               <item>
-               <widget class="QLabel" name="labelDisplayPublish">
+               <widget class="QLabel" name="labelDisplaySelection">
                 <property name="text">
                  <string>Display as:</string>
                 </property>
@@ -275,7 +275,7 @@ QGroupBox::title {
                  <string>Clear All Information Input</string>
                 </property>
                 <property name="text">
-                 <string>Clear All</string>
+                 <string>Clear Display</string>
                 </property>
                 <property name="icon">
                  <iconset resource="../resources/images.qrc">
@@ -325,7 +325,7 @@ QGroupBox::title {
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_5">
             <item>
-             <widget class="QLabel" name="labelPublishTopic_3">
+             <widget class="QLabel" name="labelTopicDisplay">
               <property name="text">
                <string>Topic Table:</string>
               </property>
@@ -335,9 +335,9 @@ QGroupBox::title {
              <widget class="QTableView" name="tableViewTopics"/>
             </item>
             <item>
-             <widget class="QLabel" name="labelPublishTopic">
+             <widget class="QLabel" name="labelSubscribeTopic">
               <property name="text">
-               <string>Topic Modification:</string>
+               <string>Topic Input:</string>
               </property>
              </widget>
             </item>
@@ -428,7 +428,7 @@ QGroupBox::title {
        <item>
         <layout class="QHBoxLayout" name="horizontalLayout_6">
          <item>
-          <widget class="QLabel" name="labelPublishTopic_2">
+          <widget class="QLabel" name="labelPublishTopic">
            <property name="text">
             <string>Publish Topic:</string>
            </property>
@@ -486,7 +486,7 @@ QGroupBox::title {
             <string>Clear All Information Input</string>
            </property>
            <property name="text">
-            <string>Clear All</string>
+            <string>Clear Information</string>
            </property>
            <property name="icon">
             <iconset resource="../resources/images.qrc">
@@ -520,21 +520,12 @@ QGroupBox::title {
           </widget>
          </item>
          <item>
-          <widget class="QLineEdit" name="lineEditPublishMessage">
-           <property name="minimumSize">
+          <widget class="QTextEdit" name="lineEditPublishMessage">
+           <property name="maximumSize">
             <size>
-             <width>0</width>
-             <height>0</height>
+             <width>16777215</width>
+             <height>16777215</height>
             </size>
-           </property>
-           <property name="statusTip">
-            <string>Input Publish Message Here</string>
-           </property>
-           <property name="text">
-            <string/>
-           </property>
-           <property name="placeholderText">
-            <string>Input Publish Message Here</string>
            </property>
           </widget>
          </item>
