@@ -99,8 +99,8 @@ inline void SampleBase::start()
     }
     catch (const nzmqt::ZMQException& ex)
     {
-        qWarning() << Q_FUNC_INFO << "Exception:" << ex.what();
-        QString info = QString("Exception: %1").arg(ex.what());
+        qWarning() << Q_FUNC_INFO << "Exception:" << ex.what() << "\nCode:" << ex.num();
+        QString info = QString("Exception: %1\nCode: %2").arg(ex.what()).arg(ex.num());
         emit failure(ex.what());
         emit finished();
         emit signal_log(1, info);
@@ -116,8 +116,8 @@ inline void SampleBase::startAction(const QStringList& args)
     }
     catch (const nzmqt::ZMQException& ex)
     {
-        qWarning() << Q_FUNC_INFO << "Exception:" << ex.what();
-        QString info = QString("Exception: %1").arg(ex.what());
+        qWarning() << Q_FUNC_INFO << "Exception:" << ex.what() << "\nCode:" << ex.num();
+        QString info = QString("Exception: %1\nCode: %2").arg(ex.what()).arg(ex.num());
         emit failure(ex.what());
         emit finished();
         emit signal_log(1, info);
@@ -133,8 +133,8 @@ inline void SampleBase::stopAction(const QStringList& args)
     }
     catch (const nzmqt::ZMQException& ex)
     {
-        qWarning() << Q_FUNC_INFO << "Exception:" << ex.what();
-        QString info = QString("Exception: %1").arg(ex.what());
+        qWarning() << Q_FUNC_INFO << "Exception:" << ex.what() << "\nCode:" << ex.num();
+        QString info = QString("Exception: %1\nCode: %2").arg(ex.what()).arg(ex.num());
         emit failure(ex.what());
         emit finished();
         emit signal_log(1, info);

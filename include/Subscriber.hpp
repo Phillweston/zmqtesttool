@@ -66,6 +66,8 @@ signals:
 protected:
     void initialize()
     {
+        int receive_timeout = 2000;  // 2 seconds for receiving
+        socket_->setOption(ZMQSocket::OPT_RCVTIMEO, &receive_timeout, sizeof(receive_timeout));
         socket_->connectTo(address_);
     }
 

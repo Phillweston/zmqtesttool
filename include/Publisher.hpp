@@ -72,6 +72,8 @@ signals:
 protected:
     void initialize()
     {
+        int send_timeout = 2000;  // 2 seconds for receiving
+        socket_->setOption(ZMQSocket::OPT_SNDTIMEO, &send_timeout, sizeof(send_timeout));
         socket_->bindTo(address_);
     }
 

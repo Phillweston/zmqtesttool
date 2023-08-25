@@ -226,7 +226,7 @@ bool MainWindow::publishMessage(samples::pubsub::Publisher* publisher)
     }
 
     QString contents = ui->lineEditPublishMessage->toPlainText();
-    if (!isValidString(contents))
+    if (contents.isEmpty())
     {
         QMessageBox::critical(this, tr("Error"), tr("Please enter a valid message"));
         ui->statusBar->showMessage(tr("Please enter a valid message"));
@@ -668,7 +668,10 @@ void MainWindow::on_buttonStart_clicked()
     updateTimer->start((int)(1000 / updateFrequency));
 
     QString ipAddress = ui->lineEditHost->text();
-    int port = ui->spinBoxPortSubscribe->value();
+    // Bind to all available interfaces
+    QString localAddress = "*";
+    int subPort = ui->spinBoxPortSubscribe->value();
+    int pubPort = ui->spinBoxPortPublish->value();
 
     bool useHex = false;
 
@@ -676,13 +679,6 @@ void MainWindow::on_buttonStart_clicked()
     {
         QMessageBox::critical(this, tr("Error"), tr("Please enter a valid IPv4 address"));
         ui->statusBar->showMessage(tr("Please enter a valid IPv4 address"));
-        return;
-    }
-
-    if (port < 0 || port > 65535)
-    {
-        QMessageBox::critical(this, tr("Error"), tr("Please enter a valid port"));
-        ui->statusBar->showMessage(tr("Please enter a valid port"));
         return;
     }
 
@@ -704,8 +700,8 @@ void MainWindow::on_buttonStart_clicked()
 
     ui->statusBar->showMessage(tr("Started ..."));
 
-    subscribeInit(ipAddress, port, useHex);
-    publishInit(ipAddress, port, useHex);
+    subscribeInit(ipAddress, subPort, useHex);
+    publishInit(localAddress, pubPort, useHex);
 }
 
 
