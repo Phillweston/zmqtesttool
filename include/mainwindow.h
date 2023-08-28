@@ -39,8 +39,6 @@ public:
     void logMessage(const QString &msg);
 
 signals:
-    void textClear();
-
     void updateTextEditSignal(QString str);
 
     void showMessageSignal(QString str);
@@ -77,8 +75,6 @@ private:
     void subscribeInit(QString ipAddress, int port, bool useHex = false);
 
 private slots:
-    void clearText();
-
     /**
      * @brief Show message on the text browser.
      * @param None
@@ -253,8 +249,6 @@ private:
     QMutex slotMutex;
 
     bool isSendMode = true; // starting state is Send mode
-    int receiveCount = 0;
-    int maxCount = 0;
     
     /**
      * @brief Initializes the table view for subscribing to topics.

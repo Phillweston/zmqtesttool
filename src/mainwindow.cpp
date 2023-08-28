@@ -14,7 +14,6 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    connect(this, &MainWindow::textClear, this, &MainWindow::clearText);
 
     connect(this, &MainWindow::updateTextEditSignal, ui->textView, &QTextEdit::append);
     connect(this, &MainWindow::showMessageSignal, ui->logMessage, &QTextEdit::append);
@@ -80,13 +79,6 @@ void MainWindow::showMessage()
             bufferedLogMessages.clear();
         }
     });
-}
-
-
-void MainWindow::clearText()
-{
-    ui->textView->clear();
-    ui->logMessage->clear();
 }
 
 
@@ -614,12 +606,7 @@ void MainWindow::messageReceived(const QString& timeStamp, const QList<QByteArra
 {
     ui->lcdNumberSubscribe->display(ui->lcdNumberSubscribe->value() + 1);
     
-    receiveCount++;
-    if (receiveCount == maxCount)
-    {
-        receiveCount = 0;
-        emit textClear();
-    }
+    ui->textView->document()->setMaximumBlockCount(ui->spinBoxMaxItem->value());
 
     QStringList localBuffer;
     localBuffer.append(timeStamp + QString(" Topic: ") + QString::fromUtf8(messageList.at(0)));
@@ -705,7 +692,6 @@ void MainWindow::on_buttonStart_clicked()
     QString localAddress = "*";
     int subPort = ui->spinBoxPortSubscribe->value();
     int pubPort = ui->spinBoxPortPublish->value();
-    maxCount = ui->spinBoxMaxItem->value();
 
     bool useHex = false;
 
